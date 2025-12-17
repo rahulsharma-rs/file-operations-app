@@ -49,3 +49,4 @@ user_files/
 # IDEs
 .idea/
 .vscode/
+/.next/
