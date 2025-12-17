@@ -1,13 +1,15 @@
 /** @type {import('next').NextConfig} */
 
-// Open OnDemand provides this automatically
-const basePath = process.env.PASSENGER_BASE_URI || ''
+// 🔒 HARD-CODE Open OnDemand base path
+const OOD_BASE_PATH = '/pun/dev/file-manager'
+
+// Allow local override if needed
+const basePath = process.env.NEXT_BASE_PATH || OOD_BASE_PATH
 
 const nextConfig = {
   basePath,
   assetPrefix: basePath,
 
-  // Required for HPC / OOD
   images: {
     unoptimized: true,
   },
