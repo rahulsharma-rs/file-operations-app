@@ -42,7 +42,7 @@ export function Sidebar({ className, currentCategory, onCategoryChange, onNewIte
             <div className="space-y-4 py-4">
                 <div className="px-3 py-2">
                     <div className="mb-6 px-4">
-                        <h2 className="text-xl font-bold tracking-tight mb-4">HPC Explorer</h2>
+                        <h2 className="text-xl font-bold tracking-tight mb-4">DataLens RC Explorer</h2>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button className="w-full justify-start gap-2 shadow-md" size="lg">

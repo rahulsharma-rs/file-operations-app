@@ -1,4 +1,3 @@
-
 "use client"
 
 import { FileItem } from "@/app/types"

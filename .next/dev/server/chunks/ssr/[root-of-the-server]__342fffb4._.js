@@ -110,7 +110,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sonner$2
 ;
 ;
 const metadata = {
-    title: 'v0 App',
+    title: 'DataLens RC Explorer',
     description: 'Created with v0',
     generator: 'v0.app',
     icons: {

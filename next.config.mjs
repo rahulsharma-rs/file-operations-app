@@ -2,6 +2,11 @@
 const nextConfig = {
   // Open OnDemand runs app under a sub-path
   basePath: process.env.PASSENGER_BASE_URI || '',
+  // Hide the "N" dev indicator
+  devIndicators: {
+    appIsrStatus: false,
+    buildActivity: false,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

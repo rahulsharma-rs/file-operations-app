@@ -1,4 +1,4 @@
-# HPC File Manager
+# DataLens RC Explorer
 
 A modern, high-performance file management application designed for High Performance Computing (HPC) environments. Built with **Next.js**, this secure application runs directly in your browser and interacts with your file system.
 
