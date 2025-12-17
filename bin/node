@@ -1,0 +1,13 @@
+#!/bin/bash
+# Load the required nodejs module
+# Adjust the module name if your system uses a different one, e.g., 'node/20' or 'nodejs/20'
+if [ -f /etc/profile.d/modules.sh ]; then
+  . /etc/profile.d/modules.sh
+elif [ -f /etc/profile.d/lmod.sh ]; then
+  . /etc/profile.d/lmod.sh
+fi
+
+module load nodejs/20 2>/dev/null || module load nodejs 2>/dev/null
+
+# Execute the actual node command with arguments
+exec node "$@"

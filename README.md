@@ -96,5 +96,23 @@ The app will launch at a URL like: `https://ood.your-center.edu/pun/dev/file-man
 *   **Icons**: Lucide React
 *   **Server**: Node.js (Standalone or managed by Passenger)
 
+
+### Troubleshooting
+**Error: `SyntaxError: Unexpected token '??='`**
+This means the system Node.js version is too old. You have two options:
+
+1.  **Load a newer module (Recommended):**
+    Ensure a newer Node.js (v18+) is loaded before the app starts. You can try adding this to your `~/.bashrc`:
+    ```bash
+    module load nodejs/20
+    ```
+
+2.  **Use the included wrapper:**
+    I've included a wrapper script in `bin/node`. You can configure Passenger to use this by creating a `.htaccess` file in the app directory:
+    ```apache
+    PassengerNodejs /users/YOUR_USER/ondemand/dev/file-manager/bin/node
+    ```
+    *(Replace `YOUR_USER` with your actual username)*
+
 ### Open OnDemand Specifics
 The app uses a custom `app.js` entry point to integrate with Phusion Passenger. It reads the `PASSENGER_BASE_URI` environment variable provided by OOD to correctly set the application `basePath`, ensuring assets and links load correctly relative to `/pun/sys/app` or `/pun/dev/app`.
