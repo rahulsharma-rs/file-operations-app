@@ -10,11 +10,13 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+
   images: {
     unoptimized: true,
   },
-  // Standalone output is often easier for deployment
-  output: 'standalone',
+  // Standalone output is often easier for deployment but conflicts with valid custom server usage locally sometimes.
+  // We'll trust the standard build for now as we use app.js.
+  // output: 'standalone',
 }
 
 export default nextConfig

@@ -2,11 +2,14 @@ const { createServer } = require('http')
 const { parse } = require('url')
 const next = require('next')
 
-const dev = process.env.NODE_ENV !== 'production'
+
+const dev = process.env.NODE_ENV === 'development'
 const hostname = 'localhost'
 const port = parseInt(process.env.PORT, 10) || 3000
 
 async function startServer() {
+    console.log(`Starting server on port ${port} (dev=${dev})`)
+
     // Dynamically import the ESM config
     const conf = (await import('./next.config.mjs')).default
 
