@@ -553,44 +553,49 @@ async function permanentDelete(itemPath) {
 }
 async function getRecentFiles() {
     try {
-        const recentFiles = [];
-        const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        async function walk(dir, depth) {
-            if (depth > 4) return; // Limit depth
-            try {
-                const entries = await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].readdir(dir);
-                for (const entry of entries){
-                    if (entry.startsWith('.') || entry === 'node_modules' || entry === 'Library') continue;
-                    const entryPath = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(dir, entry);
-                    try {
-                        const stats = await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].stat(entryPath);
-                        if (stats.isDirectory()) {
-                            await walk(entryPath, depth + 1);
-                        } else {
-                            if (stats.mtimeMs > oneWeekAgo) {
-                                recentFiles.push({
-                                    id: entryPath,
-                                    name: entry,
-                                    type: 'file',
-                                    path: entryPath,
-                                    owner: await getUsername(stats.uid),
-                                    group: String(stats.gid),
-                                    modifiedAt: stats.mtime.toISOString(),
-                                    sizeBytes: stats.size,
-                                    permissions: 'rw-r--r--'
-                                });
-                            }
-                        }
-                    } catch (e) {
-                    // Ignore specific file access errors
-                    }
+        // Optimization: Use system `find` command to avoid slow recursive Node.js calls / 502 timeouts
+        // maxdepth 4: Limit traversal depth
+        // -type f: Only files
+        // -mtime -7: Modified in last 7 days
+        // -not -path '*/.*': Exclude hidden files
+        // Exclude common heavy directories like node_modules, Library
+        const cmd = `find . -maxdepth 4 -not -path '*/.*' -not -path '*/node_modules/*' -not -path '*/Library/*' -mtime -7 -type f | head -n 50`;
+        try {
+            const { stdout } = await execAsync(cmd, {
+                cwd: BASE_PATH,
+                timeout: 5000 // 5 second timeout protection
+            });
+            const relativePaths = stdout.trim().split('\n').filter((p)=>p.length > 0);
+            const files = await Promise.all(relativePaths.map(async (relPath)=>{
+                try {
+                    // find output is relative to CWD (BASE_PATH). e.g. "./Documents/foo.txt"
+                    const fullPath = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(BASE_PATH, relPath);
+                    const stats = await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].stat(fullPath);
+                    const name = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].basename(fullPath);
+                    let type = 'file';
+                    if (name.endsWith('.sh') || name.endsWith('.py')) type = 'script';
+                    else if (name.endsWith('.csv') || name.endsWith('.json')) type = 'data';
+                    else if (name.endsWith('.zip') || name.endsWith('.tar') || name.endsWith('.gz')) type = 'archive';
+                    return {
+                        id: fullPath,
+                        name: name,
+                        type: type,
+                        path: fullPath,
+                        owner: await getUsername(stats.uid),
+                        group: String(stats.gid),
+                        modifiedAt: stats.mtime.toISOString(),
+                        sizeBytes: stats.size,
+                        permissions: 'rw-r--r--'
+                    };
+                } catch (e) {
+                    return null;
                 }
-            } catch (e) {
-            // Ignore directory access errors
-            }
+            }));
+            return files.filter((f)=>f !== null).sort((a, b)=>new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime());
+        } catch (execError) {
+            console.error("Exec find error:", execError);
+            return [];
         }
-        await walk(BASE_PATH, 0);
-        return recentFiles.sort((a, b)=>new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime()).slice(0, 50);
     } catch (e) {
         console.error("Recent files error:", e);
         return [];
