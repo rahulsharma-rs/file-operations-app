@@ -3,7 +3,11 @@ const { parse } = require('url')
 const next = require('next')
 
 
-const dev = process.env.NODE_ENV === 'development'
+
+// Detect if running on Open OnDemand (Passenger)
+const isOOD = !!process.env.PASSENGER_BASE_URI
+const dev = process.env.NODE_ENV === 'development' && !isOOD
+
 const hostname = 'localhost'
 const port = parseInt(process.env.PORT, 10) || 3000
 
