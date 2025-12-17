@@ -132,7 +132,8 @@ export function FileExplorer() {
             return matchesSearch && matchesOwner && matchesType
         }
 
-        return matchesSearch && matchesOwner && matchesType
+        const isHidden = file.name.startsWith('.')
+        return matchesSearch && matchesOwner && matchesType && !isHidden
     }).sort((a, b) => {
         let aValue = a[sortConfig.column as keyof FileItem]
         let bValue = b[sortConfig.column as keyof FileItem]

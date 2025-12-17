@@ -619,3 +619,39 @@ export async function getFavorites(): Promise<FileItem[]> {
         return []
     }
 }
+
+export async function searchUsers(query: string): Promise<{ username: string, uid?: string, gid?: string }[]> {
+    if (!query || query.length < 2) return []
+
+    try {
+        try {
+            const { stdout } = await execAsync(`getent passwd | grep -i "${query}" | head -n 20`)
+            if (stdout) {
+                return stdout.trim().split('\n').map(line => {
+                    const parts = line.split(':')
+                    return {
+                        username: parts[0],
+                        uid: parts[2],
+                        gid: parts[3]
+                    }
+                })
+            }
+        } catch (e) {
+        }
+
+        try {
+            const { stdout } = await execAsync(`dscl . -list /Users | grep -i "${query}" | head -n 20`)
+            if (stdout) {
+                return stdout.trim().split('\n').map(line => ({
+                    username: line.trim()
+                }))
+            }
+        } catch (e) {
+        }
+
+        return []
+    } catch (error) {
+        console.error("Search users error:", error)
+        return []
+    }
+}

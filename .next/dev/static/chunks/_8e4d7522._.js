@@ -3754,7 +3754,8 @@ function FileExplorer() {
             // For now, accept all that come from the API
             return matchesSearch && matchesOwner && matchesType;
         }
-        return matchesSearch && matchesOwner && matchesType;
+        const isHidden = file.name.startsWith('.');
+        return matchesSearch && matchesOwner && matchesType && !isHidden;
     }).sort((a, b)=>{
         let aValue = a[sortConfig.column];
         let bValue = b[sortConfig.column];
@@ -3949,7 +3950,7 @@ function FileExplorer() {
                 onNewItem: handleNewItem
             }, void 0, false, {
                 fileName: "[project]/components/FileExplorer.tsx",
-                lineNumber: 346,
+                lineNumber: 347,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3969,7 +3970,7 @@ function FileExplorer() {
                                                 children: currentView === 'home' ? currentPath.length > 0 ? currentPath[currentPath.length - 1] : "Home" : currentView
                                             }, void 0, false, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 358,
+                                                lineNumber: 359,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -3981,13 +3982,13 @@ function FileExplorer() {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 361,
+                                                lineNumber: 362,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/FileExplorer.tsx",
-                                        lineNumber: 357,
+                                        lineNumber: 358,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4000,7 +4001,7 @@ function FileExplorer() {
                                                         className: "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 368,
+                                                        lineNumber: 369,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4010,13 +4011,13 @@ function FileExplorer() {
                                                         onChange: (e)=>setTextSearch(e.target.value)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 369,
+                                                        lineNumber: 370,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 367,
+                                                lineNumber: 368,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4028,24 +4029,24 @@ function FileExplorer() {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 383,
+                                                    lineNumber: 384,
                                                     columnNumber: 33
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 377,
+                                                lineNumber: 378,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/FileExplorer.tsx",
-                                        lineNumber: 366,
+                                        lineNumber: 367,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/FileExplorer.tsx",
-                                lineNumber: 356,
+                                lineNumber: 357,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4068,24 +4069,24 @@ function FileExplorer() {
                                                                             className: "h-3 w-3"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                                            lineNumber: 398,
+                                                                            lineNumber: 399,
                                                                             columnNumber: 49
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 397,
+                                                                        lineNumber: 398,
                                                                         columnNumber: 45
                                                                     }, this),
                                                                     "Home"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 393,
+                                                                lineNumber: 394,
                                                                 columnNumber: 41
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                            lineNumber: 392,
+                                                            lineNumber: 393,
                                                             columnNumber: 37
                                                         }, this),
                                                         currentPath.map((folder, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4093,7 +4094,7 @@ function FileExplorer() {
                                                                 children: [
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$breadcrumb$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BreadcrumbSeparator"], {}, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 405,
+                                                                        lineNumber: 406,
                                                                         columnNumber: 45
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$breadcrumb$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BreadcrumbItem"], {
@@ -4102,7 +4103,7 @@ function FileExplorer() {
                                                                             children: folder
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                                            lineNumber: 408,
+                                                                            lineNumber: 409,
                                                                             columnNumber: 53
                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$breadcrumb$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BreadcrumbLink"], {
                                                                             className: "cursor-pointer hover:text-primary transition-colors",
@@ -4110,36 +4111,36 @@ function FileExplorer() {
                                                                             children: folder
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                                            lineNumber: 410,
+                                                                            lineNumber: 411,
                                                                             columnNumber: 53
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 406,
+                                                                        lineNumber: 407,
                                                                         columnNumber: 45
                                                                     }, this)
                                                                 ]
                                                             }, index, true, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 404,
+                                                                lineNumber: 405,
                                                                 columnNumber: 41
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 391,
+                                                    lineNumber: 392,
                                                     columnNumber: 33
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 390,
+                                                lineNumber: 391,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "h-4 w-[1px] bg-border mx-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 423,
+                                                lineNumber: 424,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4159,20 +4160,20 @@ function FileExplorer() {
                                                         className: "h-3 w-3 mr-1"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 436,
+                                                        lineNumber: 437,
                                                         columnNumber: 33
                                                     }, this),
                                                     "Up Level"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 425,
+                                                lineNumber: 426,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/FileExplorer.tsx",
-                                        lineNumber: 389,
+                                        lineNumber: 390,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4191,12 +4192,12 @@ function FileExplorer() {
                                                                     placeholder: "Type"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                    lineNumber: 445,
+                                                                    lineNumber: 446,
                                                                     columnNumber: 41
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 444,
+                                                                lineNumber: 445,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4206,7 +4207,7 @@ function FileExplorer() {
                                                                         children: "All Types"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 448,
+                                                                        lineNumber: 449,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4214,7 +4215,7 @@ function FileExplorer() {
                                                                         children: "Folders"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 449,
+                                                                        lineNumber: 450,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4222,7 +4223,7 @@ function FileExplorer() {
                                                                         children: "Scripts"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 450,
+                                                                        lineNumber: 451,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4230,26 +4231,26 @@ function FileExplorer() {
                                                                         children: "Data"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 451,
+                                                                        lineNumber: 452,
                                                                         columnNumber: 41
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 447,
+                                                                lineNumber: 448,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 443,
+                                                        lineNumber: 444,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "h-4 w-[1px] bg-border/50"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 455,
+                                                        lineNumber: 456,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4262,12 +4263,12 @@ function FileExplorer() {
                                                                     placeholder: "Owner"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                    lineNumber: 459,
+                                                                    lineNumber: 460,
                                                                     columnNumber: 41
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 458,
+                                                                lineNumber: 459,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4277,7 +4278,7 @@ function FileExplorer() {
                                                                         children: "All Owners"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 462,
+                                                                        lineNumber: 463,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     owners.map((owner)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4285,26 +4286,26 @@ function FileExplorer() {
                                                                             children: owner
                                                                         }, owner, false, {
                                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                                            lineNumber: 464,
+                                                                            lineNumber: 465,
                                                                             columnNumber: 45
                                                                         }, this))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 461,
+                                                                lineNumber: 462,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 457,
+                                                        lineNumber: 458,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "h-4 w-[1px] bg-border/50"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 469,
+                                                        lineNumber: 470,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4317,12 +4318,12 @@ function FileExplorer() {
                                                                     placeholder: "Modified"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                    lineNumber: 473,
+                                                                    lineNumber: 474,
                                                                     columnNumber: 41
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 472,
+                                                                lineNumber: 473,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4332,7 +4333,7 @@ function FileExplorer() {
                                                                         children: "Newest"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 476,
+                                                                        lineNumber: 477,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4340,25 +4341,25 @@ function FileExplorer() {
                                                                         children: "Oldest"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 477,
+                                                                        lineNumber: 478,
                                                                         columnNumber: 41
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 475,
+                                                                lineNumber: 476,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 471,
+                                                        lineNumber: 472,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 442,
+                                                lineNumber: 443,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4373,12 +4374,12 @@ function FileExplorer() {
                                                             className: "h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                            lineNumber: 489,
+                                                            lineNumber: 490,
                                                             columnNumber: 37
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 483,
+                                                        lineNumber: 484,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4390,36 +4391,36 @@ function FileExplorer() {
                                                             className: "h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                            lineNumber: 497,
+                                                            lineNumber: 498,
                                                             columnNumber: 37
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 491,
+                                                        lineNumber: 492,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 482,
+                                                lineNumber: 483,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/FileExplorer.tsx",
-                                        lineNumber: 441,
+                                        lineNumber: 442,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/FileExplorer.tsx",
-                                lineNumber: 388,
+                                lineNumber: 389,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/FileExplorer.tsx",
-                        lineNumber: 355,
+                        lineNumber: 356,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -4437,7 +4438,7 @@ function FileExplorer() {
                                             children: "Shared with Me"
                                         }, void 0, false, {
                                             fileName: "[project]/components/FileExplorer.tsx",
-                                            lineNumber: 509,
+                                            lineNumber: 510,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -4445,13 +4446,13 @@ function FileExplorer() {
                                             children: "Shared by Me"
                                         }, void 0, false, {
                                             fileName: "[project]/components/FileExplorer.tsx",
-                                            lineNumber: 510,
+                                            lineNumber: 511,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/FileExplorer.tsx",
-                                    lineNumber: 508,
+                                    lineNumber: 509,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -4472,12 +4473,12 @@ function FileExplorer() {
                                         onFavorite: handleFavorite
                                     }, void 0, false, {
                                         fileName: "[project]/components/FileExplorer.tsx",
-                                        lineNumber: 514,
+                                        lineNumber: 515,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/FileExplorer.tsx",
-                                    lineNumber: 513,
+                                    lineNumber: 514,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -4497,7 +4498,7 @@ function FileExplorer() {
                                                                 children: "File"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 536,
+                                                                lineNumber: 537,
                                                                 columnNumber: 49
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4505,7 +4506,7 @@ function FileExplorer() {
                                                                 children: "Shared With"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 537,
+                                                                lineNumber: 538,
                                                                 columnNumber: 49
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4513,18 +4514,18 @@ function FileExplorer() {
                                                                 children: "Permissions"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 538,
+                                                                lineNumber: 539,
                                                                 columnNumber: 49
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                        lineNumber: 535,
+                                                        lineNumber: 536,
                                                         columnNumber: 45
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 534,
+                                                    lineNumber: 535,
                                                     columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4538,7 +4539,7 @@ function FileExplorer() {
                                                                         children: file.name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 544,
+                                                                        lineNumber: 545,
                                                                         columnNumber: 53
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4557,28 +4558,28 @@ function FileExplorer() {
                                                                                                 className: "h-3 w-3"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                                                lineNumber: 554,
+                                                                                                lineNumber: 555,
                                                                                                 columnNumber: 73
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                                                            lineNumber: 550,
+                                                                                            lineNumber: 551,
                                                                                             columnNumber: 69
                                                                                         }, this)
                                                                                     ]
                                                                                 }, idx, true, {
                                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                                    lineNumber: 548,
+                                                                                    lineNumber: 549,
                                                                                     columnNumber: 65
                                                                                 }, this))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                                            lineNumber: 546,
+                                                                            lineNumber: 547,
                                                                             columnNumber: 57
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 545,
+                                                                        lineNumber: 546,
                                                                         columnNumber: 53
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4594,12 +4595,12 @@ function FileExplorer() {
                                                                                         className: `h-4 w-4 ${file.permissions === '0444' ? 'text-orange-500' : ''}`
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                                        lineNumber: 563,
+                                                                                        lineNumber: 564,
                                                                                         columnNumber: 65
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                                    lineNumber: 562,
+                                                                                    lineNumber: 563,
                                                                                     columnNumber: 61
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4610,12 +4611,12 @@ function FileExplorer() {
                                                                                         className: `h-4 w-4 ${file.permissions === '0644' ? 'text-green-500' : ''}`
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                                        lineNumber: 566,
+                                                                                        lineNumber: 567,
                                                                                         columnNumber: 65
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                                    lineNumber: 565,
+                                                                                    lineNumber: 566,
                                                                                     columnNumber: 61
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4623,24 +4624,24 @@ function FileExplorer() {
                                                                                     children: file.permissions
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                                    lineNumber: 568,
+                                                                                    lineNumber: 569,
                                                                                     columnNumber: 61
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                                            lineNumber: 561,
+                                                                            lineNumber: 562,
                                                                             columnNumber: 57
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/FileExplorer.tsx",
-                                                                        lineNumber: 560,
+                                                                        lineNumber: 561,
                                                                         columnNumber: 53
                                                                     }, this)
                                                                 ]
                                                             }, file.id, true, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 543,
+                                                                lineNumber: 544,
                                                                 columnNumber: 49
                                                             }, this)),
                                                         outgoingShares.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -4650,40 +4651,40 @@ function FileExplorer() {
                                                                 children: "You haven't shared any files yet."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                                lineNumber: 575,
+                                                                lineNumber: 576,
                                                                 columnNumber: 53
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                            lineNumber: 574,
+                                                            lineNumber: 575,
                                                             columnNumber: 49
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 541,
+                                                    lineNumber: 542,
                                                     columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/FileExplorer.tsx",
-                                            lineNumber: 533,
+                                            lineNumber: 534,
                                             columnNumber: 37
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/FileExplorer.tsx",
-                                        lineNumber: 532,
+                                        lineNumber: 533,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/FileExplorer.tsx",
-                                    lineNumber: 531,
+                                    lineNumber: 532,
                                     columnNumber: 29
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/FileExplorer.tsx",
-                            lineNumber: 507,
+                            lineNumber: 508,
                             columnNumber: 25
                         }, this) : currentView === 'trash' ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "border rounded-md",
@@ -4699,7 +4700,7 @@ function FileExplorer() {
                                                     children: "File"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 590,
+                                                    lineNumber: 591,
                                                     columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4707,7 +4708,7 @@ function FileExplorer() {
                                                     children: "Deleted At"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 591,
+                                                    lineNumber: 592,
                                                     columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4715,18 +4716,18 @@ function FileExplorer() {
                                                     children: "Actions"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 592,
+                                                    lineNumber: 593,
                                                     columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/FileExplorer.tsx",
-                                            lineNumber: 589,
+                                            lineNumber: 590,
                                             columnNumber: 37
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/FileExplorer.tsx",
-                                        lineNumber: 588,
+                                        lineNumber: 589,
                                         columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4741,14 +4742,14 @@ function FileExplorer() {
                                                                     children: file.type === 'folder' ? '📁' : '📄'
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                    lineNumber: 599,
+                                                                    lineNumber: 600,
                                                                     columnNumber: 49
                                                                 }, this),
                                                                 file.name
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                            lineNumber: 598,
+                                                            lineNumber: 599,
                                                             columnNumber: 45
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4756,7 +4757,7 @@ function FileExplorer() {
                                                             children: new Date(file.modifiedAt).toLocaleString()
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                            lineNumber: 602,
+                                                            lineNumber: 603,
                                                             columnNumber: 45
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4777,7 +4778,7 @@ function FileExplorer() {
                                                                     children: "Restore"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                    lineNumber: 606,
+                                                                    lineNumber: 607,
                                                                     columnNumber: 49
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4796,19 +4797,19 @@ function FileExplorer() {
                                                                     children: "Delete Forever"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                                    lineNumber: 615,
+                                                                    lineNumber: 616,
                                                                     columnNumber: 49
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/FileExplorer.tsx",
-                                                            lineNumber: 605,
+                                                            lineNumber: 606,
                                                             columnNumber: 45
                                                         }, this)
                                                     ]
                                                 }, file.id, true, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 597,
+                                                    lineNumber: 598,
                                                     columnNumber: 41
                                                 }, this)),
                                             files.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -4818,29 +4819,29 @@ function FileExplorer() {
                                                     children: "Trash is empty"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/FileExplorer.tsx",
-                                                    lineNumber: 629,
+                                                    lineNumber: 630,
                                                     columnNumber: 45
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/FileExplorer.tsx",
-                                                lineNumber: 629,
+                                                lineNumber: 630,
                                                 columnNumber: 41
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/FileExplorer.tsx",
-                                        lineNumber: 595,
+                                        lineNumber: 596,
                                         columnNumber: 33
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/FileExplorer.tsx",
-                                lineNumber: 587,
+                                lineNumber: 588,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/FileExplorer.tsx",
-                            lineNumber: 586,
+                            lineNumber: 587,
                             columnNumber: 25
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$FileList$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FileList"], {
                             files: filteredFiles,
@@ -4858,18 +4859,18 @@ function FileExplorer() {
                             onFavorite: handleFavorite
                         }, void 0, false, {
                             fileName: "[project]/components/FileExplorer.tsx",
-                            lineNumber: 635,
+                            lineNumber: 636,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/FileExplorer.tsx",
-                        lineNumber: 505,
+                        lineNumber: 506,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/FileExplorer.tsx",
-                lineNumber: 353,
+                lineNumber: 354,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$DetailsDrawer$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DetailsDrawer"], {
@@ -4881,7 +4882,7 @@ function FileExplorer() {
                 onShare: handleShare
             }, void 0, false, {
                 fileName: "[project]/components/FileExplorer.tsx",
-                lineNumber: 654,
+                lineNumber: 655,
                 columnNumber: 13
             }, this),
             isShareOpen && fileToShare && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ShareDialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ShareDialog"], {
@@ -4891,7 +4892,7 @@ function FileExplorer() {
                 file: fileToShare
             }, void 0, false, {
                 fileName: "[project]/components/FileExplorer.tsx",
-                lineNumber: 667,
+                lineNumber: 668,
                 columnNumber: 17
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -4901,13 +4902,13 @@ function FileExplorer() {
                 className: "hidden"
             }, void 0, false, {
                 fileName: "[project]/components/FileExplorer.tsx",
-                lineNumber: 675,
+                lineNumber: 676,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/FileExplorer.tsx",
-        lineNumber: 345,
+        lineNumber: 346,
         columnNumber: 9
     }, this);
 }

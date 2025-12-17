@@ -20,7 +20,7 @@ module.exports = mod;
 "[project]/app/actions.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-/* __next_internal_action_entry_do_not_use__ [{"0020d9d54704edd74264ab2de83e04253236b91dab":"getTrashFiles","003e338349fc9faaffdb7fe8784c42cb98899ec388":"getRecentFiles","007b570a57785f01535b5d375be38cb258aa44d016":"getFavorites","00f724b4ca412bcb595c35212354467d12f2529459":"getOutgoingShares","40099588628f710f4d9e22c199e98f338eb465781b":"getSharedFiles","400bd08efdc740ce9ea47f88e1cd6d94740f49bb3a":"toggleFavorite","401016ed009895c71125b90a9a126e5e434cc70c02":"moveToTrash","4063d695a9e853e52488e4eae429ab5f3c0eb3e216":"getFiles","4082fd6d6c6f40bf76de86e0df85c7a7e0c9fa9f91":"uploadFile","4085ad2e2fe1bf148e66865890f87db6e185f5411a":"deleteItem","40983b261685df111a29469abdca7b2d96a175a6e5":"permanentDelete","40d16576a1197cb79f87d426537e25047357caad19":"getFileShares","40e2810abb4df32d98f4fe01b4a2c23c5578905f69":"restoreFromTrash","60484b10479f56499b8d2807bd2ec3adfa3701149b":"moveItem","604d4be896ae4ef055605db17161a7003806ef5633":"renameItem","609ff9fef701996ebb30337f0573aa84a15e364c28":"createFolder","60c646fe7379a2a2d65c23cd27673dff057d09f365":"shareFile","60e19c8c998f07a6ca71d9eb820622f55035e0d360":"changePermissions","60f535c6df1a1d9b470e0d25988d8759c27e1030c2":"unshareFile"},"",""] */ __turbopack_context__.s([
+/* __next_internal_action_entry_do_not_use__ [{"0020d9d54704edd74264ab2de83e04253236b91dab":"getTrashFiles","003e338349fc9faaffdb7fe8784c42cb98899ec388":"getRecentFiles","007b570a57785f01535b5d375be38cb258aa44d016":"getFavorites","00f724b4ca412bcb595c35212354467d12f2529459":"getOutgoingShares","40099588628f710f4d9e22c199e98f338eb465781b":"getSharedFiles","400bd08efdc740ce9ea47f88e1cd6d94740f49bb3a":"toggleFavorite","401016ed009895c71125b90a9a126e5e434cc70c02":"moveToTrash","4063d695a9e853e52488e4eae429ab5f3c0eb3e216":"getFiles","4082fd6d6c6f40bf76de86e0df85c7a7e0c9fa9f91":"uploadFile","4085ad2e2fe1bf148e66865890f87db6e185f5411a":"deleteItem","40983b261685df111a29469abdca7b2d96a175a6e5":"permanentDelete","40c1481f0c0aea852a62ccf66004dcd7fd9ef6f7a9":"searchUsers","40d16576a1197cb79f87d426537e25047357caad19":"getFileShares","40e2810abb4df32d98f4fe01b4a2c23c5578905f69":"restoreFromTrash","60484b10479f56499b8d2807bd2ec3adfa3701149b":"moveItem","604d4be896ae4ef055605db17161a7003806ef5633":"renameItem","609ff9fef701996ebb30337f0573aa84a15e364c28":"createFolder","60c646fe7379a2a2d65c23cd27673dff057d09f365":"shareFile","60e19c8c998f07a6ca71d9eb820622f55035e0d360":"changePermissions","60f535c6df1a1d9b470e0d25988d8759c27e1030c2":"unshareFile"},"",""] */ __turbopack_context__.s([
     "changePermissions",
     ()=>changePermissions,
     "createFolder",
@@ -51,6 +51,8 @@ module.exports = mod;
     ()=>renameItem,
     "restoreFromTrash",
     ()=>restoreFromTrash,
+    "searchUsers",
+    ()=>searchUsers,
     "shareFile",
     ()=>shareFile,
     "toggleFavorite",
@@ -700,6 +702,36 @@ async function getFavorites() {
         return [];
     }
 }
+async function searchUsers(query) {
+    if (!query || query.length < 2) return [];
+    try {
+        try {
+            const { stdout } = await execAsync(`getent passwd | grep -i "${query}" | head -n 20`);
+            if (stdout) {
+                return stdout.trim().split('\n').map((line)=>{
+                    const parts = line.split(':');
+                    return {
+                        username: parts[0],
+                        uid: parts[2],
+                        gid: parts[3]
+                    };
+                });
+            }
+        } catch (e) {}
+        try {
+            const { stdout } = await execAsync(`dscl . -list /Users | grep -i "${query}" | head -n 20`);
+            if (stdout) {
+                return stdout.trim().split('\n').map((line)=>({
+                        username: line.trim()
+                    }));
+            }
+        } catch (e) {}
+        return [];
+    } catch (error) {
+        console.error("Search users error:", error);
+        return [];
+    }
+}
 ;
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ensureServerEntryExports"])([
     getFiles,
@@ -720,7 +752,8 @@ async function getFavorites() {
     renameItem,
     moveItem,
     toggleFavorite,
-    getFavorites
+    getFavorites,
+    searchUsers
 ]);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getFiles, "4063d695a9e853e52488e4eae429ab5f3c0eb3e216", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(shareFile, "60c646fe7379a2a2d65c23cd27673dff057d09f365", null);
@@ -741,12 +774,14 @@ async function getFavorites() {
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(moveItem, "60484b10479f56499b8d2807bd2ec3adfa3701149b", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(toggleFavorite, "400bd08efdc740ce9ea47f88e1cd6d94740f49bb3a", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getFavorites, "007b570a57785f01535b5d375be38cb258aa44d016", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(searchUsers, "40c1481f0c0aea852a62ccf66004dcd7fd9ef6f7a9", null);
 }),
 "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript) <locals>", ((__turbopack_context__) => {
 "use strict";
 
 __turbopack_context__.s([]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/app/actions.ts [app-rsc] (ecmascript)");
+;
 ;
 ;
 ;
@@ -790,6 +825,8 @@ __turbopack_context__.s([
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["deleteItem"],
     "40983b261685df111a29469abdca7b2d96a175a6e5",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["permanentDelete"],
+    "40c1481f0c0aea852a62ccf66004dcd7fd9ef6f7a9",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["searchUsers"],
     "40d16576a1197cb79f87d426537e25047357caad19",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getFileShares"],
     "40e2810abb4df32d98f4fe01b4a2c23c5578905f69",

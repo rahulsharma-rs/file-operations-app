@@ -101,6 +101,7 @@
     --color-white: #fff;
     --spacing: .25rem;
     --container-sm: 24rem;
+    --container-md: 28rem;
     --container-lg: 32rem;
     --text-xs: .75rem;
     --text-xs--line-height: calc(1 / .75);
@@ -1569,6 +1570,12 @@
     margin-block-end: calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-y-reverse)));
   }
 
+  :where(.space-y-2 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
   :where(.space-y-4 > :not(:last-child)) {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
@@ -1961,6 +1968,16 @@
     background-color: hsl(var(--secondary));
   }
 
+  .bg-secondary\/20 {
+    background-color: hsl(var(--secondary));
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-secondary\/20 {
+      background-color: color-mix(in oklab, hsl(var(--secondary)) 20%, transparent);
+    }
+  }
+
   .bg-secondary\/30 {
     background-color: hsl(var(--secondary));
   }
@@ -2136,6 +2153,10 @@
     padding-block: calc(var(--spacing) * 6);
   }
 
+  .py-8 {
+    padding-block: calc(var(--spacing) * 8);
+  }
+
   .pt-0 {
     padding-top: calc(var(--spacing) * 0);
   }
@@ -2265,6 +2286,10 @@
 
   .text-\[0\.8rem\] {
     font-size: .8rem;
+  }
+
+  .text-\[10px\] {
+    font-size: 10px;
   }
 
   .leading-none {
@@ -3237,6 +3262,18 @@
   @media (hover: hover) {
     .hover\:bg-secondary:hover {
       background-color: hsl(var(--secondary));
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-secondary\/40:hover {
+      background-color: hsl(var(--secondary));
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-secondary\/40:hover {
+        background-color: color-mix(in oklab, hsl(var(--secondary)) 40%, transparent);
+      }
     }
   }
 
@@ -4695,6 +4732,12 @@
   @media (min-width: 40rem) {
     .sm\:max-w-lg {
       max-width: var(--container-lg);
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .sm\:max-w-md {
+      max-width: var(--container-md);
     }
   }
 

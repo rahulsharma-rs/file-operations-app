@@ -21,6 +21,8 @@ import {
     Upload,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ShareDialog } from "./ShareDialog"
+import { UserSearchDialog } from "./UserSearchDialog"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     activeView?: string
@@ -107,14 +109,22 @@ export function Sidebar({ className, activeView = "home", onNavigate, onNewItem 
                 </div>
             </div>
 
+            {/* <div className="p-4 border-t border-border/40">
+                 <div className="bg-secondary/20 rounded-lg p-3">
+                     <div className="flex items-center justify-between mb-2">
+                         <span className="text-xs font-medium text-muted-foreground">Storage</span>
+                         <span className="text-xs font-medium text-muted-foreground">45%</span>
+                     </div>
+                     <Progress value={45} className="h-1.5" />
+                     <div className="flex justify-between mt-1">
+                         <span className="text-[10px] text-muted-foreground">45 GB</span>
+                         <span className="text-[10px] text-muted-foreground">100 GB</span>
+                     </div>
+                 </div>
+             </div> */}
+
             <div className="p-4 border-t border-border/40">
-                <div className="bg-card/30 rounded-lg p-3 text-xs text-muted-foreground">
-                    <p className="font-semibold mb-1 text-foreground">Storage</p>
-                    <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden mb-2">
-                        <div className="h-full bg-primary/60 w-[45%]" />
-                    </div>
-                    <p>45GB of 100GB used</p>
-                </div>
+                <UserSearchDialog />
             </div>
         </div>
     )
