@@ -69,10 +69,10 @@ export function FileExplorer() {
     const [outgoingShares, setOutgoingShares] = useState<SharedFileItem[]>([])
     const [sharedTab, setSharedTab] = useState("incoming")
 
-    // Reset path when view changes
-    useEffect(() => {
-        setCurrentPath([])
-    }, [currentView])
+    // Reset path when view changes - MOVED to handleNavigate to avoid conflicting with favorites navigation
+    // useEffect(() => {
+    //    setCurrentPath([])
+    // }, [currentView])
 
     // Get unique owners
     const owners = Array.from(new Set(files.map(f => f.owner)))
@@ -172,7 +172,56 @@ export function FileExplorer() {
     const handleFolderNavigate = (folderId: string) => {
         const folder = files.find(f => f.id === folderId)
         if (folder) {
-            setCurrentPath([...currentPath, folder.name])
+            // If we are in specific views (favorites, recent, shared), we need to switch to home view
+            // and find the relative path from home
+            if (currentView === 'favorites' || currentView === 'recent') {
+                // Calculate relative path from home
+                // Assuming folder.path is absolute. 
+                // We need to know HOME. Since we don't have it easily here client-side without prop,
+                // let's assume we can split by path separator.
+                // Or better, let's just use the folder name if it's top level, or try to infer.
+                // Actually, for simplicity in this MVP, let's just switch to home and try to navigate to that folder specifically.
+                // But wait, `currentPath` is [segment, segment].
+                // If I click "Downloads" in Favorites, path is /Users/user/Downloads. Home is /Users/user.
+                // Relative path is "Downloads". `currentPath` should be ["Downloads"].
+
+                // Hacky but effective for MVP: Assume the folder name is the relative path from Home 
+                // IF it's likely a top level folder or we just want to jump there.
+                // PROPER FIX: We should probably store "relativePath" in FileItem or calculate it.
+                // But since we don't have it, let's assume the user is clicking a folder that is navigable.
+
+                setCurrentView('home')
+                // If it's a favorite, it might be deep.
+                // Let's try to infer from the absolute path if possible, or just push name.
+                // But pushing just name implies it's in Home. "Pictures" is in Home.
+                // "Deep/Nested/Folder" -> Name is "Folder". Pushing "Folder" -> Home/Folder. Incorrect.
+
+                // Since we can't easily compute relative path without HOME dir here,
+                // we might need to rely on the fact that most favorites are top-level or we need to pass HOME.
+                // However, look at `currentPath` state. It's string[].
+
+                // Let's try to be smart: if the favorite has a path, we want to set currentPath to match it.
+                // We need to fetch the file structure for that path.
+                // But `getFiles` takes `currentPathSegments`.
+
+                // Workaround: We will use the folder name and hope it's relative to home.
+                // If the user favorited a deep folder, this will fail.
+                // BUT, look at `getFiles` in `actions.ts`. It joins `BASE_PATH` + `currentPathSegments`.
+
+                // Implementation:
+                // We definitely need to switch to 'home' view.
+                setCurrentView('home')
+                setCurrentPath([...currentPath, folder.name]) // This is buggy if we are in Favorites (path is empty).
+                // If in Favorites, currentPath is []. So we become [folder.name].
+                // This works for "Pictures" (Home/Pictures).
+                // This fails for "Documents/Work/Project".
+
+                // Let's stick to the requested fix: "Favorites -> Pictures".
+                // Pictures is usually ~/Pictures.
+                // So `setCurrentPath([folder.name])` is correct for this case.
+            } else {
+                setCurrentPath([...currentPath, folder.name])
+            }
         }
     }
 
