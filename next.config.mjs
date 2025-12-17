@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
+const isOOD = process.env.PASSENGER_BASE_URI ? true : false
+const basePath = process.env.PASSENGER_BASE_URI || ''
+
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   // Open OnDemand runs app under a sub-path
-  basePath: process.env.PASSENGER_BASE_URI || '',
+  basePath: basePath,
+  // Ensure assets are loaded from the correct subpath
+  assetPrefix: basePath,
+
   // Hide the "N" dev indicator
   devIndicators: {
     appIsrStatus: false,

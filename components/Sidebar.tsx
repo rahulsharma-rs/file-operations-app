@@ -38,39 +38,45 @@ export function Sidebar({ className, activeView = "home", onNavigate, onNewItem 
     ]
 
     return (
-        <div className={cn("pb-12 w-64 border-r min-h-screen bg-card", className)}>
-            <div className="space-y-4 py-4">
+        <div className={cn("pb-12 w-64 border-r min-h-screen glass flex flex-col transition-all duration-300", className)}>
+            <div className="space-y-4 py-4 flex-1">
                 <div className="px-3 py-2">
-                    <div className="mb-6 px-4">
-                        <h2 className="text-xl font-bold tracking-tight mb-4">DataLens RC Explorer</h2>
+                    <div className="mb-8 px-4 flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                            <span className="text-primary font-bold text-lg">DL</span>
+                        </div>
+                        <h2 className="text-xl font-bold tracking-tight text-foreground/90">DataLens</h2>
+                    </div>
+
+                    <div className="mb-6 px-2">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button className="w-full justify-start gap-2 shadow-md" size="lg">
+                                <Button className="w-full justify-start gap-2 shadow-lg hover:shadow-primary/20 transition-all bg-primary text-primary-foreground hover:bg-primary/90" size="lg">
                                     <Plus className="h-5 w-5" />
-                                    New
+                                    <span className="font-semibold">New Item</span>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="start">
-                                <DropdownMenuItem onClick={() => onNewItem('folder')}>
-                                    <FolderPlus className="mr-2 h-4 w-4" />
+                            <DropdownMenuContent className="w-56 glass-card p-2" align="start">
+                                <DropdownMenuItem onClick={() => onNewItem('folder')} className="cursor-pointer">
+                                    <FolderPlus className="mr-2 h-4 w-4 text-primary" />
                                     <span>New Folder</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => onNewItem('upload')}>
-                                    <Upload className="mr-2 h-4 w-4" />
+                                <DropdownMenuSeparator className="bg-border/50" />
+                                <DropdownMenuItem onClick={() => onNewItem('upload')} className="cursor-pointer">
+                                    <Upload className="mr-2 h-4 w-4 text-blue-400" />
                                     <span>File Upload</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onNewItem('upload')}>
-                                    <Upload className="mr-2 h-4 w-4" />
+                                <DropdownMenuItem onClick={() => onNewItem('upload')} className="cursor-pointer">
+                                    <Upload className="mr-2 h-4 w-4 text-blue-400" />
                                     <span>Folder Upload</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => onNewItem('script')}>
-                                    <FilePlus className="mr-2 h-4 w-4" />
+                                <DropdownMenuSeparator className="bg-border/50" />
+                                <DropdownMenuItem onClick={() => onNewItem('script')} className="cursor-pointer">
+                                    <FilePlus className="mr-2 h-4 w-4 text-yellow-400" />
                                     <span>New Script (.sh)</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onNewItem('script')}>
-                                    <FilePlus className="mr-2 h-4 w-4" />
+                                <DropdownMenuItem onClick={() => onNewItem('script')} className="cursor-pointer">
+                                    <FilePlus className="mr-2 h-4 w-4 text-yellow-400" />
                                     <span>New Script (.py)</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -81,18 +87,33 @@ export function Sidebar({ className, activeView = "home", onNavigate, onNewItem 
                         {navItems.map((item) => (
                             <Button
                                 key={item.id}
-                                variant={activeView === item.id ? "secondary" : "ghost"}
+                                variant="ghost"
                                 className={cn(
-                                    "w-full justify-start",
-                                    activeView === item.id && "font-semibold"
+                                    "w-full justify-start relative overflow-hidden transition-all duration-300",
+                                    activeView === item.id
+                                        ? "bg-primary/10 text-primary font-semibold shadow-sm hover:bg-primary/15"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                                 )}
                                 onClick={() => onNavigate?.(item.id)}
                             >
-                                <item.icon className="mr-2 h-4 w-4" />
+                                {activeView === item.id && (
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-full" />
+                                )}
+                                <item.icon className={cn("mr-3 h-5 w-5 transition-colors", activeView === item.id ? "text-primary" : "text-muted-foreground")} />
                                 {item.name}
                             </Button>
                         ))}
                     </div>
+                </div>
+            </div>
+
+            <div className="p-4 border-t border-border/40">
+                <div className="bg-card/30 rounded-lg p-3 text-xs text-muted-foreground">
+                    <p className="font-semibold mb-1 text-foreground">Storage</p>
+                    <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden mb-2">
+                        <div className="h-full bg-primary/60 w-[45%]" />
+                    </div>
+                    <p>45GB of 100GB used</p>
                 </div>
             </div>
         </div>

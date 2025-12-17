@@ -13,6 +13,7 @@ const port = parseInt(process.env.PORT, 10) || 3000
 
 async function startServer() {
     console.log(`Starting server on port ${port} (dev=${dev})`)
+    console.log(`Base Path detected: ${process.env.PASSENGER_BASE_URI || 'None (Root)'}`)
 
     // Dynamically import the ESM config
     const conf = (await import('./next.config.mjs')).default

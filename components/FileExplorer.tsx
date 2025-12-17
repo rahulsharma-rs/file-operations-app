@@ -46,6 +46,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 
 export function FileExplorer() {
     const [currentView, setCurrentView] = useState('home')
@@ -349,45 +350,53 @@ export function FileExplorer() {
                 onNewItem={handleNewItem}
             />
 
-            <div className="flex-1 flex flex-col min-w-0 h-full">
+            <div className="flex-1 flex flex-col min-w-0 h-full bg-background/50 relative">
                 {/* Header */}
-                <header className="border-b bg-card p-4 space-y-4">
+                <header className="border-b border-border/40 bg-background/60 backdrop-blur-xl p-6 space-y-6 sticky top-0 z-10 transition-all">
                     <div className="flex items-center justify-between gap-4">
-                        <h1 className="text-xl font-semibold truncate capitalize">
-                            {currentView === 'home' ? (currentPath.length > 0 ? currentPath[currentPath.length - 1] : "Home") : currentView}
-                        </h1>
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-2xl font-bold tracking-tight capitalize bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+                                {currentView === 'home' ? (currentPath.length > 0 ? currentPath[currentPath.length - 1] : "Home") : currentView}
+                            </h1>
+                            <Badge variant="outline" className="text-xs font-normal bg-primary/5 text-primary border-primary/20">
+                                {filteredFiles.length} items
+                            </Badge>
+                        </div>
 
-                        <div className="flex items-center gap-2">
-                            <div className="relative w-64">
-                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <div className="flex items-center gap-3">
+                            <div className="relative w-96 group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                                 <Input
-                                    placeholder="Search files..."
-                                    className="pl-8"
+                                    placeholder="Search files, folders, and content..."
+                                    className="pl-10 h-10 bg-secondary/50 border-transparent focus:bg-background focus:border-primary/50 transition-all rounded-full"
                                     value={textSearch}
                                     onChange={(e) => setTextSearch(e.target.value)}
                                 />
                             </div>
 
                             <Button
-                                variant="ghost"
+                                variant="outline"
                                 size="icon"
                                 onClick={() => setIsDetailsOpen(!isDetailsOpen)}
-                                className={isDetailsOpen ? "bg-muted" : ""}
+                                className={cn("h-10 w-10 rounded-full border-border/50 bg-background/50 hover:bg-muted transition-all", isDetailsOpen && "bg-primary/10 text-primary border-primary/20")}
                             >
-                                <Info className="h-5 w-5" />
+                                <Info className="h-4 w-4" />
                             </Button>
                         </div>
                     </div>
 
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 flex-1 overflow-x-auto">
+                        <div className="flex items-center gap-4 flex-1 overflow-x-auto mask-linear-fade">
                             <Breadcrumb>
                                 <BreadcrumbList>
                                     <BreadcrumbItem>
                                         <BreadcrumbLink
-                                            className="cursor-pointer"
+                                            className="cursor-pointer hover:text-primary transition-colors font-medium flex items-center gap-2"
                                             onClick={() => setCurrentPath([])}
                                         >
+                                            <div className="p-1 rounded-md bg-muted/50">
+                                                <LayoutGrid className="h-3 w-3" />
+                                            </div>
                                             Home
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
@@ -396,10 +405,10 @@ export function FileExplorer() {
                                             <BreadcrumbSeparator />
                                             <BreadcrumbItem>
                                                 {index === currentPath.length - 1 ? (
-                                                    <BreadcrumbPage>{folder}</BreadcrumbPage>
+                                                    <BreadcrumbPage className="font-semibold text-foreground bg-primary/5 px-2 py-0.5 rounded-md">{folder}</BreadcrumbPage>
                                                 ) : (
                                                     <BreadcrumbLink
-                                                        className="cursor-pointer"
+                                                        className="cursor-pointer hover:text-primary transition-colors"
                                                         onClick={() => setCurrentPath(currentPath.slice(0, index + 1))}
                                                     >
                                                         {folder}
@@ -410,10 +419,13 @@ export function FileExplorer() {
                                     ))}
                                 </BreadcrumbList>
                             </Breadcrumb>
+
+                            <div className="h-4 w-[1px] bg-border mx-2" />
+
                             <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-6 w-6"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
                                 disabled={currentPath.length === 0}
                                 onClick={() => {
                                     const newPath = [...currentPath]
@@ -421,58 +433,65 @@ export function FileExplorer() {
                                     setCurrentPath(newPath)
                                 }}
                             >
-                                <ChevronUp className="h-4 w-4" />
+                                <ChevronUp className="h-3 w-3 mr-1" />
+                                Up Level
                             </Button>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <Select value={typeFilter} onValueChange={setTypeFilter}>
-                                <SelectTrigger className="w-[120px] h-8 text-xs">
-                                    <SelectValue placeholder="Type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Types</SelectItem>
-                                    <SelectItem value="folder">Folders</SelectItem>
-                                    <SelectItem value="script">Scripts</SelectItem>
-                                    <SelectItem value="data">Data</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 bg-secondary/30 p-1 rounded-lg border border-border/50">
+                                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                                    <SelectTrigger className="w-[110px] h-8 text-xs border-0 bg-transparent focus:ring-0 shadow-none">
+                                        <SelectValue placeholder="Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Types</SelectItem>
+                                        <SelectItem value="folder">Folders</SelectItem>
+                                        <SelectItem value="script">Scripts</SelectItem>
+                                        <SelectItem value="data">Data</SelectItem>
+                                    </SelectContent>
+                                </Select>
 
-                            <Select value={ownerFilter} onValueChange={setOwnerFilter}>
-                                <SelectTrigger className="w-[140px] h-8 text-xs">
-                                    <SelectValue placeholder="Owner/Group" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Owners</SelectItem>
-                                    {owners.map(owner => (
-                                        <SelectItem key={owner} value={owner}>{owner}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                <div className="h-4 w-[1px] bg-border/50" />
 
-                            <Select value={modifiedFilter} onValueChange={handleModifiedFilterChange}>
-                                <SelectTrigger className="w-[120px] h-8 text-xs">
-                                    <SelectValue placeholder="Modified" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="newest">Newest</SelectItem>
-                                    <SelectItem value="oldest">Oldest</SelectItem>
-                                </SelectContent>
-                            </Select>
+                                <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+                                    <SelectTrigger className="w-[120px] h-8 text-xs border-0 bg-transparent focus:ring-0 shadow-none">
+                                        <SelectValue placeholder="Owner" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Owners</SelectItem>
+                                        {owners.map(owner => (
+                                            <SelectItem key={owner} value={owner}>{owner}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
 
-                            <div className="flex items-center border rounded-md bg-background">
+                                <div className="h-4 w-[1px] bg-border/50" />
+
+                                <Select value={modifiedFilter} onValueChange={handleModifiedFilterChange}>
+                                    <SelectTrigger className="w-[100px] h-8 text-xs border-0 bg-transparent focus:ring-0 shadow-none">
+                                        <SelectValue placeholder="Modified" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="newest">Newest</SelectItem>
+                                        <SelectItem value="oldest">Oldest</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex items-center bg-secondary/30 p-1 rounded-lg border border-border/50">
                                 <Button
-                                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                                    variant="ghost"
                                     size="sm"
-                                    className="h-8 px-2 rounded-none rounded-l-md"
+                                    className={cn("h-7 w-7 p-0 rounded-md transition-all", viewMode === 'list' && "bg-background shadow-sm text-primary")}
                                     onClick={() => setViewMode('list')}
                                 >
                                     <ListIcon className="h-4 w-4" />
                                 </Button>
                                 <Button
-                                    variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                                    variant="ghost"
                                     size="sm"
-                                    className="h-8 px-2 rounded-none rounded-r-md"
+                                    className={cn("h-7 w-7 p-0 rounded-md transition-all", viewMode === 'grid' && "bg-background shadow-sm text-primary")}
                                     onClick={() => setViewMode('grid')}
                                 >
                                     <LayoutGrid className="h-4 w-4" />
