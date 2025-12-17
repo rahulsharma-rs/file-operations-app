@@ -1,0 +1,18 @@
+---
+name: File Operations App
+role: batch_connect
+category: Files
+description: |
+  A robust file management application for HPC.
+
+  Features:
+  - Upload, Download, Rename, Move Files
+  - Favorites & Recent Files
+  - Shared Projects
+  - Trash Bin
+
+script:
+  # This tells OOD this is a Node.js app
+  # It will use the 'node' version available in the environment
+  # You might need to load a module in your form.yml.erb if specifically needed
+  native: true
