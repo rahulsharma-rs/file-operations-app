@@ -1,16 +1,35 @@
+
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Sidebar } from "./Sidebar"
 import { FileList } from "./FileList"
 import { DetailsDrawer } from "./DetailsDrawer"
 import { ShareDialog } from "./ShareDialog"
-import { getFiles, shareFile, getSharedFiles, getOutgoingShares, unshareFile, changePermissions, uploadFile, createFolder, deleteItem, getTrashFiles, permanentDelete, restoreFromTrash, getRecentFiles, renameItem, moveItem, toggleFavorite, getFavorites } from "@/app/actions"
+import {
+    getFiles,
+    shareFile,
+    getSharedFiles,
+    getOutgoingShares,
+    unshareFile,
+    changePermissions,
+    uploadFile as uploadFileAction,
+    createFolder as createFolderAction,
+    deleteItem,
+    getTrashFiles,
+    permanentDelete,
+    restoreFromTrash,
+    getRecentFiles,
+    renameItem,
+    moveItem,
+    toggleFavorite,
+    getFavorites
+} from "@/app/actions"
 import { FileItem, SharedFileItem } from "@/app/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { X, Lock, Unlock } from "lucide-react"
+import { X, Lock, Unlock, Search, LayoutGrid, List as ListIcon, Info, ChevronUp } from "lucide-react"
 import { toast } from "sonner"
 import {
     Breadcrumb,
@@ -27,9 +46,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Search, LayoutGrid, List as ListIcon, Info, ChevronUp } from "lucide-react"
 
 export function FileExplorer() {
+    const [currentView, setCurrentView] = useState('home')
     const [currentPath, setCurrentPath] = useState<string[]>([])
     const [files, setFiles] = useState<FileItem[]>([])
     const [selectedFile, setSelectedFile] = useState<FileItem | null>(null)
@@ -46,59 +65,57 @@ export function FileExplorer() {
     const [ownerFilter, setOwnerFilter] = useState("all")
     const [modifiedFilter, setModifiedFilter] = useState("all")
     const [typeFilter, setTypeFilter] = useState("all")
-    const [currentCategory, setCurrentCategory] = useState<'home' | 'shared' | 'favorites' | 'trash' | 'recent'>('home')
     const [outgoingShares, setOutgoingShares] = useState<SharedFileItem[]>([])
     const [sharedTab, setSharedTab] = useState("incoming")
 
-    // Reset path when category changes
+    // Reset path when view changes
     useEffect(() => {
         setCurrentPath([])
-    }, [currentCategory])
+    }, [currentView])
 
     // Get unique owners
     const owners = Array.from(new Set(files.map(f => f.owner)))
 
     // Initial load and path navigation
     const loadFiles = useCallback(async () => {
-        // Debug
-        toast(`Loading category: ${currentCategory}`)
+        setFiles([]) // Clear to prevent stale view
 
-        // Clear files to prevent stale view
-        setFiles([])
-
-        let fetchedFiles: FileItem[] = []
-        if (currentCategory === 'shared') {
-            if (sharedTab === 'incoming') {
-                fetchedFiles = await getSharedFiles(currentPath)
-                setFiles(fetchedFiles)
+        try {
+            let fetchedFiles: FileItem[] = []
+            if (currentView === 'shared') {
+                if (sharedTab === 'incoming') {
+                    fetchedFiles = await getSharedFiles(currentPath)
+                    setFiles(fetchedFiles)
+                } else {
+                    const outgoing = await getOutgoingShares()
+                    setOutgoingShares(outgoing)
+                    setFiles(outgoing)
+                }
+            } else if (currentView === 'trash') {
+                const trashFiles = await getTrashFiles()
+                setFiles(trashFiles)
+            } else if (currentView === 'recent') {
+                const recent = await getRecentFiles()
+                setFiles(recent)
+            } else if (currentView === 'favorites') {
+                const favs = await getFavorites()
+                setFiles(favs)
             } else {
-                const outgoing = await getOutgoingShares()
-                setOutgoingShares(outgoing)
-                setFiles(outgoing)
+                fetchedFiles = await getFiles(currentPath)
+                setFiles(fetchedFiles)
             }
-        } else if (currentCategory === 'trash') {
-            const trashFiles = await getTrashFiles()
-            setFiles(trashFiles)
-        } else if (currentCategory === 'recent') {
-            const recent = await getRecentFiles()
-            setFiles(recent)
-        } else if (currentCategory === 'favorites') {
-            const favs = await getFavorites()
-            setFiles(favs)
-        } else {
-            fetchedFiles = await getFiles(currentPath)
-            setFiles(fetchedFiles)
+        } catch (e) {
+            console.error(e)
+            toast.error("Failed to load files")
         }
-    }, [currentPath, currentCategory, sharedTab, setFiles])
+    }, [currentPath, currentView, sharedTab])
 
     useEffect(() => {
         loadFiles()
     }, [loadFiles])
 
 
-    // Filter files based on search and current logic (mocked)
-    // In a real app this would query the backend based on path
-    // Filter files logic
+    // Filter files
     const filteredFiles = files.filter(file => {
         const matchesSearch = file.name.toLowerCase().includes(textSearch.toLowerCase())
         const matchesOwner = ownerFilter === "all" || file.owner === ownerFilter
@@ -107,51 +124,29 @@ export function FileExplorer() {
             (typeFilter === 'script' && file.type === 'script') ||
             (typeFilter === 'data' && file.type === 'data')
 
-        // Category filter simulation
-        if (currentCategory === 'trash') {
-            // In a real app, we'd check if file.deletedAt is set.
-            // For now, let's just show no files to simulate 'empty trash' or maybe filtered out ones
-            // But to show "Refinement" I'll just say:
-            return false // Empty trash for now, or we could add a 'isDeleted' flag to mockData.
-        }
-
-        // Shared projects simulation
-        if (currentCategory === 'shared') {
-            return matchesSearch && matchesOwner && matchesType && file.group === 'researchers'
-        }
-
-        // Recent simulation
-        if (currentCategory === 'recent') {
-            // Show all but maybe sorted by time.
+        // Special view filters
+        if (currentView === 'shared') {
+            // Incoming shared files usually keep their group or have specific metadata
+            // For now, accept all that come from the API
             return matchesSearch && matchesOwner && matchesType
         }
 
         return matchesSearch && matchesOwner && matchesType
     }).sort((a, b) => {
-        // Special modified filter handling (overrides column sort for simplicity if strictly enforcing the dropdown logic)
-        // However, usually detailed table sort and a "view" dropdown might conflict.
-        // The requirement says "Modified dropdown (Newest, Oldest)".
-        // Let's make the modified dropdown set the primary sort to 'modifiedAt'.
-
         let aValue = a[sortConfig.column as keyof FileItem]
         let bValue = b[sortConfig.column as keyof FileItem]
 
-        if (modifiedFilter !== 'custom') {
-            // If we are strictly using the dropdown, we might ignore the table header sort or sync them.
-            // For this implementation, I will let the specific modified dropdown take precedence for 'modifiedAt' sorting
-            // but if the user clicks a header, we might want to respect that.
-            // A cleaner approach for "Newest/Oldest" dropdown is:
-            // It effectively sets column='modifiedAt' and direction='desc'/'asc'.
+        if (modifiedFilter === 'newest') {
+            // Forced override handled by effect, but as backup:
+            if (sortConfig.column !== 'modifiedAt') return 0
         }
 
         if (aValue === undefined || bValue === undefined) return 0
-
         if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1
         if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1
         return 0
     })
 
-    // Update sort when Modified dropdown changes
     const handleModifiedFilterChange = (value: string) => {
         setModifiedFilter(value)
         if (value === 'newest') {
@@ -159,6 +154,12 @@ export function FileExplorer() {
         } else if (value === 'oldest') {
             setSortConfig({ column: 'modifiedAt', direction: 'asc' })
         }
+    }
+
+    const handleNavigate = (view: string) => {
+        setCurrentView(view)
+        setCurrentPath([])
+        setSelectedFile(null)
     }
 
     const handleFileSelect = (file: FileItem) => {
@@ -185,31 +186,18 @@ export function FileExplorer() {
             const name = prompt("Enter folder name:")
             if (!name) return
 
-            const result = await createFolder(currentPath, name)
+            const result = await createFolderAction(currentPath, name)
             if (result.success) {
                 toast.success(result.message)
-                const items = await getFiles(currentPath)
-                setFiles(items)
+                loadFiles()
             } else {
                 toast.error(result.message)
             }
             return
         }
 
-        // Mock remaining types for now or implement file creation action similarly if needed
-        const newItem: FileItem = {
-            id: Math.random().toString(36).substr(2, 9),
-            name: `new_${type}.${type === 'script' ? 'sh' : 'txt'}`,
-            type: type as any,
-            path: `/home/rahul/new_${type}`,
-            owner: 'rahul',
-            group: 'researchers',
-            modifiedAt: new Date().toISOString(),
-            sizeBytes: 0,
-            permissions: '-rw-r--r--'
-        }
-        setFiles([newItem, ...files])
-        toast(`Created new ${type} (Mocked)`)
+        // Handling script creation could go here (mocked for now or added to actions)
+        toast.info("Script creation not fully implemented yet")
     }
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,17 +208,15 @@ export function FileExplorer() {
         formData.append('file', file)
         formData.append('pathSegments', JSON.stringify(currentPath))
 
-        toast.promise(uploadFile(formData), {
+        toast.promise(uploadFileAction(formData), {
             loading: 'Uploading...',
             success: (data) => {
-                // Refresh files
-                getFiles(currentPath).then(setFiles)
+                loadFiles()
                 return data.message
             },
             error: 'Upload failed'
         })
 
-        // Reset input
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
@@ -238,18 +224,14 @@ export function FileExplorer() {
         const file = files.find(f => f.id === fileId)
         if (!file) return
 
-        const confirm = window.confirm(`Are you sure you want to delete ${file.name}?`)
-        if (!confirm) return
+        if (!window.confirm(`Are you sure you want to delete ${file.name}?`)) return
 
         const result = await deleteItem(file.path)
-
         if (result.success) {
-            setFiles(files.filter(f => f.id !== fileId))
             toast.success(result.message)
-            if (selectedFile?.id === fileId) {
-                setSelectedFile(null)
-                setIsDetailsOpen(false)
-            }
+            // Optimistic update or reload
+            setFiles(current => current.filter(f => f.id !== fileId))
+            if (selectedFile?.id === fileId) setIsDetailsOpen(false)
         } else {
             toast.error(result.message)
         }
@@ -277,13 +259,11 @@ export function FileExplorer() {
     }
 
     const handleDownload = (file: FileItem) => {
-        // Trigger download via API
         window.open(`/api/download?path=${encodeURIComponent(file.path)}`, '_blank')
     }
 
-    // New handler for Move
     const handleMove = async (file: FileItem) => {
-        const destination = window.prompt("Enter destination folder path (e.g. /home/user/Backup):")
+        const destination = window.prompt("Enter destination folder path:")
         if (!destination) return
 
         const res = await moveItem(file.path, destination)
@@ -295,11 +275,10 @@ export function FileExplorer() {
         }
     }
 
-    // New handler for Favorite
     const handleFavorite = async (file: FileItem) => {
         const res = await toggleFavorite(file.path)
         toast(res.message)
-        if (currentCategory === 'favorites') {
+        if (currentView === 'favorites') {
             loadFiles()
         }
     }
@@ -314,7 +293,7 @@ export function FileExplorer() {
 
         await new Promise<void>((resolve, reject) => {
             toast.promise(shareFile(fileToShare.path, username), {
-                loading: 'Creating symlink...',
+                loading: 'Sharing...',
                 success: (data) => {
                     resolve()
                     if (data.success) return data.message
@@ -329,13 +308,11 @@ export function FileExplorer() {
     }
 
     const handleUnshare = async (username: string, fileName: string) => {
-        const confirm = window.confirm(`Stop sharing ${fileName} with ${username}?`)
-        if (!confirm) return
+        if (!window.confirm(`Stop sharing ${fileName} with ${username}?`)) return
 
         const result = await unshareFile(username, fileName)
         if (result.success) {
             toast.success(result.message)
-            // Refresh list
             const outgoing = await getOutgoingShares()
             setOutgoingShares(outgoing)
             setFiles(outgoing)
@@ -344,11 +321,10 @@ export function FileExplorer() {
         }
     }
 
-    const handlePermissionChange = async (file: FileItem, mode: string) => {
+    const handlePermissionChange = async (file: SharedFileItem, mode: string) => {
         const result = await changePermissions(file.path, mode)
         if (result.success) {
             toast.success(result.message)
-            // Refresh
             const outgoing = await getOutgoingShares()
             setOutgoingShares(outgoing)
             setFiles(outgoing)
@@ -364,13 +340,12 @@ export function FileExplorer() {
         }))
     }
 
-
     return (
-        <div className="flex h-screen bg-background overflow-hidden">
+        <div className="flex h-screen bg-background overflow-hidden main-layout">
             <Sidebar
                 className="hidden md:block w-64 flex-shrink-0"
-                currentCategory={currentCategory}
-                onCategoryChange={(cat) => setCurrentCategory(cat as any)}
+                activeView={currentView}
+                onNavigate={handleNavigate}
                 onNewItem={handleNewItem}
             />
 
@@ -379,7 +354,7 @@ export function FileExplorer() {
                 <header className="border-b bg-card p-4 space-y-4">
                     <div className="flex items-center justify-between gap-4">
                         <h1 className="text-xl font-semibold truncate capitalize">
-                            {currentCategory === 'home' ? (currentPath.length > 0 ? currentPath[currentPath.length - 1] : "Home") : currentCategory}
+                            {currentView === 'home' ? (currentPath.length > 0 ? currentPath[currentPath.length - 1] : "Home") : currentView}
                         </h1>
 
                         <div className="flex items-center gap-2">
@@ -509,7 +484,7 @@ export function FileExplorer() {
 
                 {/* Main Content */}
                 <main className="flex-1 overflow-auto p-6">
-                    {currentCategory === 'shared' ? (
+                    {currentView === 'shared' ? (
                         <Tabs value={sharedTab} onValueChange={setSharedTab} className="w-full">
                             <TabsList className="mb-4">
                                 <TabsTrigger value="incoming">Shared with Me</TabsTrigger>
@@ -588,7 +563,7 @@ export function FileExplorer() {
                                 </div>
                             </TabsContent>
                         </Tabs>
-                    ) : currentCategory === 'trash' ? (
+                    ) : currentView === 'trash' ? (
                         <div className="border rounded-md">
                             <table className="w-full">
                                 <thead className="bg-muted">
@@ -666,12 +641,18 @@ export function FileExplorer() {
                 onShare={handleShare}
             />
 
-            <ShareDialog
-                isOpen={isShareOpen}
-                onClose={() => setIsShareOpen(false)}
-                onConfirm={handleShareConfirm}
-                file={fileToShare}
-            />
+            {/* Placeholder for ShareDialog if it exists or we can mock it inside the file if needed 
+                Assuming ShareDialog is a real component
+            */}
+            {isShareOpen && fileToShare && (
+                <ShareDialog
+                    isOpen={isShareOpen}
+                    onClose={() => setIsShareOpen(false)}
+                    onConfirm={handleShareConfirm}
+                    file={fileToShare}
+                />
+            )}
+
             <input
                 type="file"
                 ref={fileInputRef}

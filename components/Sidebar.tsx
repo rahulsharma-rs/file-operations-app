@@ -23,18 +23,18 @@ import {
 import { cn } from "@/lib/utils"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-    currentCategory: string
-    onCategoryChange: (category: string) => void
+    activeView?: string
+    onNavigate?: (view: string) => void
     onNewItem: (type: 'folder' | 'file' | 'script' | 'upload') => void
 }
 
-export function Sidebar({ className, currentCategory, onCategoryChange, onNewItem }: SidebarProps) {
+export function Sidebar({ className, activeView = "home", onNavigate, onNewItem }: SidebarProps) {
     const navItems = [
         { name: "Home", icon: Home, id: "home" },
         { name: "Shared Projects", icon: Users, id: "shared" },
         { name: "Recent Files", icon: Clock, id: "recent" },
         { name: "Favorites", icon: Star, id: "favorites" },
-        { name: "Trash / Archive", icon: Trash2, id: "trash" },
+        { name: "Trash", icon: Trash2, id: "trash" },
     ]
 
     return (
@@ -81,12 +81,12 @@ export function Sidebar({ className, currentCategory, onCategoryChange, onNewIte
                         {navItems.map((item) => (
                             <Button
                                 key={item.id}
-                                variant={currentCategory === item.id ? "secondary" : "ghost"}
+                                variant={activeView === item.id ? "secondary" : "ghost"}
                                 className={cn(
                                     "w-full justify-start",
-                                    currentCategory === item.id && "font-semibold"
+                                    activeView === item.id && "font-semibold"
                                 )}
-                                onClick={() => onCategoryChange(item.id)}
+                                onClick={() => onNavigate?.(item.id)}
                             >
                                 <item.icon className="mr-2 h-4 w-4" />
                                 {item.name}
