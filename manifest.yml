@@ -1,7 +1,8 @@
+
 ---
 name: DataLens RC Explorer
-role: batch_connect
 category: Files
+role: passenger
 description: |
   A robust file management application for HPC.
 
@@ -10,9 +11,3 @@ description: |
   - Favorites & Recent Files
   - Shared Projects
   - Trash Bin
-
-script:
-  # This tells OOD this is a Node.js app
-  # It will use the 'node' version available in the environment
-  # You might need to load a module in your form.yml.erb if specifically needed
-  native: true
