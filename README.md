@@ -25,8 +25,9 @@ Follow these steps to run the application on your local machine (Mac, Linux, or 
 
 ### Installation
 1.  Clone the repository:
+
     ```bash
-    git clone https://github.com/your-repo/file-operations-app.git
+    git clone https://github.com/rahulsharma-rs/file-operations-app.git
     cd file-operations-app
     ```
 
@@ -50,13 +51,19 @@ Access the app at `http://localhost:3000`.
 
 This application is fully compatible with **Open OnDemand (OOD)** as a Passenger App.
 
+
 ### 1. Deployment Location
-Copy this directory to your OnDemand development folder (usually `~/ondemand/dev`):
+Navigate to your OnDemand development directory and clone the repository:
 
 ```bash
-mkdir -p ~/ondemand/dev/file-manager
-cp -r . ~/ondemand/dev/file-manager/
-cd ~/ondemand/dev/file-manager
+cd ~/ondemand/dev
+git clone https://github.com/rahulsharma-rs/file-operations-app.git file-manager
+cd file-manager
+```
+
+*Alternatively, to pull the latest updates later:*
+```bash
+git pull origin main
 ```
 
 ### 2. Build for Production
