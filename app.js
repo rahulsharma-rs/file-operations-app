@@ -5,13 +5,16 @@ const next = require('next')
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = 'localhost'
 const port = parseInt(process.env.PORT, 10) || 3000
-// when starting via passenger, we want to ensure we pick up the basePath
-const conf = require('./next.config.mjs').default
 
-const app = next({ dev, hostname, port, conf })
-const handle = app.getRequestHandler()
+async function startServer() {
+    // Dynamically import the ESM config
+    const conf = (await import('./next.config.mjs')).default
 
-app.prepare().then(() => {
+    const app = next({ dev, hostname, port, conf })
+    const handle = app.getRequestHandler()
+
+    await app.prepare()
+
     createServer(async (req, res) => {
         try {
             const parsedUrl = parse(req.url, true)
@@ -29,4 +32,9 @@ app.prepare().then(() => {
         .listen(port, () => {
             console.log(`> Ready on http://${hostname}:${port}`)
         })
+}
+
+startServer().catch(err => {
+    console.error('Failed to start server:', err)
+    process.exit(1)
 })
