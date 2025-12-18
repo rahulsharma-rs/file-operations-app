@@ -146,12 +146,51 @@ export async function shareFile(sourcePath: string, targetUsername: string, perm
         const stats = await fs.stat(sourcePath)
         const recursiveFlag = stats.isDirectory() ? '-R' : ''
 
-        // ...
+        // ... existing setup ...
+
+        // Helper to run ACL command
+        const tryAclCommand = async (cmd: string) => {
+            try {
+                const { stderr } = await execAsync(cmd)
+                if (stderr) console.warn("ACL Warning:", stderr)
+                return true
+            } catch (e) {
+                return false
+            }
+        }
 
         try {
-            // 1. Apply ACL to the target file/folder
-            // Command: setfacl -R -m u:targetUser:rwx /path/to/source
-            await execAsync(`setfacl ${recursiveFlag} -m u:${targetUsername}:${aclPerms} "${sourcePath}"`)
+            let success = false
+            let method = ''
+
+            // Strategy 1: Standard POSIX ACL (Recursive if dir)
+            const cmdPosixRecursive = `setfacl ${recursiveFlag} -m u:${targetUsername}:${aclPerms} "${sourcePath}"`
+            if (await tryAclCommand(cmdPosixRecursive)) {
+                success = true
+                method = 'POSIX (Recursive)'
+            }
+
+            // Strategy 2: Standard POSIX ACL (Non-Recursive) 
+            // Fallback if recursive failed (e.g. issues with specific files inside)
+            if (!success && recursiveFlag) {
+                const cmdPosix = `setfacl -m u:${targetUsername}:${aclPerms} "${sourcePath}"`
+                if (await tryAclCommand(cmdPosix)) {
+                    success = true
+                    method = 'POSIX (Non-Recursive)'
+                }
+            }
+
+            // Strategy 3: NFSv4 ACL (nfs4_setfacl)
+            // Syntax: nfs4_setfacl -a A::user@domain:rwaDxtTnNcCy source
+            // This is complex to map strictly to rwx. 
+            // Simple map: R (read) -> RX, W (write) -> RWX
+            // For now, let's assume if POSIX failed, we might report error unless we are sure about NFS4 syntax.
+            // But usually 'setfacl' is the standard.
+
+            if (!success) {
+                // Throw the original error or a generic one
+                throw new Error("Could not apply permissions via setfacl. The filesystem might not support ACLs.")
+            }
 
             // 2. Ensure Traversal Access (+x) on parent directories
             // If the shared file is deep inside /data/user/alice/foo/bar,

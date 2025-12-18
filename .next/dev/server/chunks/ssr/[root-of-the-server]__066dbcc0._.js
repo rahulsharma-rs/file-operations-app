@@ -218,11 +218,45 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
         // Determine if directory for recursive flag
         const stats = await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].stat(sourcePath);
         const recursiveFlag = stats.isDirectory() ? '-R' : '';
-        // ...
+        // ... existing setup ...
+        // Helper to run ACL command
+        const tryAclCommand = async (cmd)=>{
+            try {
+                const { stderr } = await execAsync(cmd);
+                if (stderr) console.warn("ACL Warning:", stderr);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        };
         try {
-            // 1. Apply ACL to the target file/folder
-            // Command: setfacl -R -m u:targetUser:rwx /path/to/source
-            await execAsync(`setfacl ${recursiveFlag} -m u:${targetUsername}:${aclPerms} "${sourcePath}"`);
+            let success = false;
+            let method = '';
+            // Strategy 1: Standard POSIX ACL (Recursive if dir)
+            const cmdPosixRecursive = `setfacl ${recursiveFlag} -m u:${targetUsername}:${aclPerms} "${sourcePath}"`;
+            if (await tryAclCommand(cmdPosixRecursive)) {
+                success = true;
+                method = 'POSIX (Recursive)';
+            }
+            // Strategy 2: Standard POSIX ACL (Non-Recursive) 
+            // Fallback if recursive failed (e.g. issues with specific files inside)
+            if (!success && recursiveFlag) {
+                const cmdPosix = `setfacl -m u:${targetUsername}:${aclPerms} "${sourcePath}"`;
+                if (await tryAclCommand(cmdPosix)) {
+                    success = true;
+                    method = 'POSIX (Non-Recursive)';
+                }
+            }
+            // Strategy 3: NFSv4 ACL (nfs4_setfacl)
+            // Syntax: nfs4_setfacl -a A::user@domain:rwaDxtTnNcCy source
+            // This is complex to map strictly to rwx. 
+            // Simple map: R (read) -> RX, W (write) -> RWX
+            // For now, let's assume if POSIX failed, we might report error unless we are sure about NFS4 syntax.
+            // But usually 'setfacl' is the standard.
+            if (!success) {
+                // Throw the original error or a generic one
+                throw new Error("Could not apply permissions via setfacl. The filesystem might not support ACLs.");
+            }
             // 2. Ensure Traversal Access (+x) on parent directories
             // If the shared file is deep inside /data/user/alice/foo/bar,
             // bob needs +x on /data/user/alice, /data/user/alice/foo to reach it.
