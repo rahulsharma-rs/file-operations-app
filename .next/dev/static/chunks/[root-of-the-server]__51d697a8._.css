@@ -807,10 +807,6 @@
     order: 9999;
   }
 
-  .col-span-3 {
-    grid-column: span 3 / span 3;
-  }
-
   .col-start-2 {
     grid-column-start: 2;
   }
@@ -897,10 +893,6 @@
 
   .mr-3 {
     margin-right: calc(var(--spacing) * 3);
-  }
-
-  .mb-1 {
-    margin-bottom: calc(var(--spacing) * 1);
   }
 
   .mb-2 {
@@ -1278,10 +1270,6 @@
     width: 40%;
   }
 
-  .w-\[45\%\] {
-    width: 45%;
-  }
-
   .w-\[50px\] {
     width: 50px;
   }
@@ -1551,10 +1539,6 @@
 
   .grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .grid-cols-4 {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .grid-cols-\[0_1fr\] {
@@ -2067,16 +2051,6 @@
     }
   }
 
-  .bg-primary\/60 {
-    background-color: hsl(var(--primary));
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-primary\/60 {
-      background-color: color-mix(in oklab, hsl(var(--primary)) 60%, transparent);
-    }
-  }
-
   .bg-secondary {
     background-color: hsl(var(--secondary));
   }
@@ -2348,10 +2322,6 @@
 
   .text-left {
     text-align: left;
-  }
-
-  .text-right {
-    text-align: right;
   }
 
   .align-middle {
@@ -4848,12 +4818,6 @@
   @media (min-width: 40rem) {
     .sm\:w-\[540px\] {
       width: 540px;
-    }
-  }
-
-  @media (min-width: 40rem) {
-    .sm\:max-w-\[425px\] {
-      max-width: 425px;
     }
   }
 

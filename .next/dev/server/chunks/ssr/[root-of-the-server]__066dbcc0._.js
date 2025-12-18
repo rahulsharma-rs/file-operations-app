@@ -248,14 +248,19 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
                 }
             }
             // Strategy 3: NFSv4 ACL (nfs4_setfacl)
-            // Syntax: nfs4_setfacl -a A::user@domain:rwaDxtTnNcCy source
-            // This is complex to map strictly to rwx. 
-            // Simple map: R (read) -> RX, W (write) -> RWX
-            // For now, let's assume if POSIX failed, we might report error unless we are sure about NFS4 syntax.
-            // But usually 'setfacl' is the standard.
+            // Implementation for systems using NFSv4 ACLs (common in HPC /project or /data)
             if (!success) {
-                // Throw the original error or a generic one
-                throw new Error("Could not apply permissions via setfacl. The filesystem might not support ACLs.");
+                const nfs4Perms = permission === 'write' ? 'RWX' : 'RX';
+                // -a: add, A: allow, ::user:perms
+                const cmdNfs4 = `nfs4_setfacl -a A::${targetUsername}:${nfs4Perms} "${sourcePath}"`;
+                if (await tryAclCommand(cmdNfs4)) {
+                    success = true;
+                    method = 'NFSv4';
+                }
+            }
+            if (!success) {
+                // Throw the original error or a generic one with more details
+                throw new Error(`Could not apply permissions. functional setfacl or nfs4_setfacl failed. Please check if ACLs are enabled on this filesystem.`);
             }
             // 2. Ensure Traversal Access (+x) on parent directories
             // If the shared file is deep inside /data/user/alice/foo/bar,
@@ -289,8 +294,13 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
             };
         } catch (aclError) {
             console.error("ACL Error:", aclError);
+            console.log("Environment check:", {
+                env: ("TURBOPACK compile-time value", "development"),
+                platform: __TURBOPACK__imported__module__$5b$externals$5d2f$os__$5b$external$5d$__$28$os$2c$__cjs$29$__["default"].platform()
+            });
             // If setfacl fails (e.g. local mac), we return error since this is the ONLY mechanism now.
-            if (("TURBOPACK compile-time value", "development") === 'development' && __TURBOPACK__imported__module__$5b$externals$5d2f$os__$5b$external$5d$__$28$os$2c$__cjs$29$__["default"].platform() === 'darwin') {
+            // On Mac (darwin), simply return success to allow UI testing.
+            if (__TURBOPACK__imported__module__$5b$externals$5d2f$os__$5b$external$5d$__$28$os$2c$__cjs$29$__["default"].platform() === 'darwin') {
                 return {
                     success: true,
                     message: `[DEV] Simulating ACL grant (${aclPerms}) to ${targetUsername} for ${sourcePath}`
