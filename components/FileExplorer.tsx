@@ -339,11 +339,11 @@ export function FileExplorer() {
         setIsShareOpen(true)
     }
 
-    const handleShareConfirm = async (username: string) => {
+    const handleShareConfirm = async (username: string, permission: 'read' | 'write') => {
         if (!fileToShare) return
 
         await new Promise<void>((resolve, reject) => {
-            toast.promise(shareFile(fileToShare.path, username), {
+            toast.promise(shareFile(fileToShare.path, username, permission), {
                 loading: 'Sharing...',
                 success: (data) => {
                     resolve()

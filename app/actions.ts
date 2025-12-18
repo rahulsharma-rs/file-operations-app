@@ -85,30 +85,43 @@ async function userExists(username: string): Promise<boolean> {
     }
 }
 
-export async function shareFile(sourcePath: string, targetUsername: string): Promise<{ success: boolean, message: string }> {
+export async function shareFile(sourcePath: string, targetUsername: string, permission: 'read' | 'write' = 'read'): Promise<{ success: boolean, message: string }> {
     // Validate target user exists
     if (!await userExists(targetUsername)) {
         return { success: false, message: `User '${targetUsername}' does not exist on this system.` }
     }
 
     try {
-        const sharedRoot = path.join(os.homedir(), 'hpc_shared')
-        const targetUserDir = path.join(sharedRoot, targetUsername)
+        // --- ACL IMPLEMENTATION ---
+        // Grant Read/Execute permissions to the target user on the source file/folder
+        // using 'setfacl'. This allows the target user to access the file directly via its full path.
+        // We do NOT create symlinks or 'hpc_shared' directories as per user request.
 
-        // Ensure shared directories exist
-        await fs.mkdir(targetUserDir, { recursive: true })
+        // Determine permissions string
+        // read: rx (needs x for directories to list contents)
+        // write: rwx (needs w to create/delete)
+        const aclPerms = permission === 'write' ? 'rwx' : 'rx'
 
-        const sourceName = path.basename(sourcePath)
-        const destPath = path.join(targetUserDir, sourceName)
+        // Determine if directory for recursive flag
+        const stats = await fs.stat(sourcePath)
+        const recursiveFlag = stats.isDirectory() ? '-R' : ''
 
         try {
-            await fs.symlink(sourcePath, destPath)
-            return { success: true, message: `Successfully shared with ${targetUsername}` }
-        } catch (e: any) {
-            if (e.code === 'EEXIST') {
-                return { success: false, message: `Already shared with ${targetUsername}` }
+            // Command: setfacl -R -m u:targetUser:rwx /path/to/source
+            await execAsync(`setfacl ${recursiveFlag} -m u:${targetUsername}:${aclPerms} "${sourcePath}"`)
+
+            // Note: For the user to traverse to this file, they need +x on parent directories.
+            // We assume basic traversal is allowed or the user handles parent permissions.
+            // Automatically opening up home dir permissions recursively is too risky to automate blindly.
+
+            return { success: true, message: `Access granted to ${targetUsername} (${permission}). They can access via: ${sourcePath}` }
+        } catch (aclError: any) {
+            console.error("ACL Error:", aclError)
+            // If setfacl fails (e.g. local mac), we return error since this is the ONLY mechanism now.
+            if (process.env.NODE_ENV === 'development' && os.platform() === 'darwin') {
+                return { success: true, message: `[DEV] Simulating ACL grant (${aclPerms}) to ${targetUsername} for ${sourcePath}` }
             }
-            throw e
+            return { success: false, message: `Failed to set permissions: ${aclError.message}` }
         }
     } catch (error: any) {
         console.error("Error sharing file:", error)

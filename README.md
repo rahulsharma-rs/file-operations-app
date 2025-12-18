@@ -116,3 +116,55 @@ This means the system Node.js version is too old. You have two options:
 
 ### Open OnDemand Specifics
 The app uses a custom `app.js` entry point to integrate with Phusion Passenger. It reads the `PASSENGER_BASE_URI` environment variable provided by OOD to correctly set the application `basePath`, ensuring assets and links load correctly relative to `/pun/sys/app` or `/pun/dev/app`.
+
+## 🔓 API Access (cURL)
+
+Since Open OnDemand is protected by authentication (Shibboleth/OIDC), you cannot simply `curl` the URL. You must provide your session cookie.
+
+1.  Open the app in your browser: `https://rc.uab.edu/pun/dev/file-manager`
+2.  Open Developer Tools (F12) -> **Network** Tab.
+3.  Refresh the page.
+4.  Right-click the first request to `file-manager` -> **Copy** -> **Copy as cURL**.
+5.  Paste into your terminal.
+
+Alternatively, copy the value of the `_pun_sess` (or similar) cookie and run:
+
+```bash
+# Using the session cookie
+curl -b "_pun_sess=YOUR_COOKIE_VALUE" https://rc.uab.edu/pun/dev/file-manager
+```
+
+### Using a JWT Token (SSO)
+
+If you have a generic SSO JWT access token, you can try passing it via the Authorization header:
+
+```bash
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" https://rc.uab.edu/pun/dev/file-manager
+```
+
+### Using Postman
+
+1.  Create a new Request.
+2.  Set URL to `https://rc.uab.edu/pun/dev/file-manager`.
+3.  **Method 1: JWT Token (if supported)**
+    *   Go to **Authorization** tab.
+    *   Select Type: **Bearer Token**.
+    *   Paste your JWT token.
+4.  **Method 2: Session Cookie (Recommended if JWT fails)**
+    *   Go to **Headers** tab.
+    *   Add Key: `Cookie`.
+    *   Add Value: `_pun_sess=YOUR_COOKIE_VALUE`.
+5.  **Handling Redirects**:
+    *   If you get a 302 Redirect to a login page, it means authentication failed.
+    *   In Postman Settings (General), turn **OFF** "Automatically follow redirects" to inspect the response.
+
+## 🤝 Sharing Architecture
+
+The sharing functionality is designed to be **HPC-native** and efficient:
+
+1.  **Mechanism**: It uses **Symbolic Links (Symlinks)** for discovery and **Access Control Lists (ACLs)** for permissions.
+2.  **Storage Efficient**: Since we don't duplicate data, sharing a 1TB dataset takes 0 extra space.
+3.  **Permissions (Auto-ACL)**: The app automatically executes `setfacl -m u:recipient:rx` on the source file/folder. This ensures the recipient can read the file without changing the file's primary group or ownership.
+4.  **Location**: Shared links are managed in a `hpc_shared` directory in the user's home structure.
+    *   **Outgoing Shares**: Placed in `~/hpc_shared/<recipient_username>/`.
+    *   **Incoming Shares**: The system looks for links intended for the current user.

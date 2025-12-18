@@ -20,7 +20,7 @@ module.exports = mod;
 "[project]/app/actions.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-/* __next_internal_action_entry_do_not_use__ [{"0020d9d54704edd74264ab2de83e04253236b91dab":"getTrashFiles","003e338349fc9faaffdb7fe8784c42cb98899ec388":"getRecentFiles","007b570a57785f01535b5d375be38cb258aa44d016":"getFavorites","00f724b4ca412bcb595c35212354467d12f2529459":"getOutgoingShares","40099588628f710f4d9e22c199e98f338eb465781b":"getSharedFiles","400bd08efdc740ce9ea47f88e1cd6d94740f49bb3a":"toggleFavorite","401016ed009895c71125b90a9a126e5e434cc70c02":"moveToTrash","4063d695a9e853e52488e4eae429ab5f3c0eb3e216":"getFiles","4082fd6d6c6f40bf76de86e0df85c7a7e0c9fa9f91":"uploadFile","4085ad2e2fe1bf148e66865890f87db6e185f5411a":"deleteItem","40983b261685df111a29469abdca7b2d96a175a6e5":"permanentDelete","40c1481f0c0aea852a62ccf66004dcd7fd9ef6f7a9":"searchUsers","40d16576a1197cb79f87d426537e25047357caad19":"getFileShares","40e2810abb4df32d98f4fe01b4a2c23c5578905f69":"restoreFromTrash","60484b10479f56499b8d2807bd2ec3adfa3701149b":"moveItem","604d4be896ae4ef055605db17161a7003806ef5633":"renameItem","609ff9fef701996ebb30337f0573aa84a15e364c28":"createFolder","60c646fe7379a2a2d65c23cd27673dff057d09f365":"shareFile","60e19c8c998f07a6ca71d9eb820622f55035e0d360":"changePermissions","60f535c6df1a1d9b470e0d25988d8759c27e1030c2":"unshareFile"},"",""] */ __turbopack_context__.s([
+/* __next_internal_action_entry_do_not_use__ [{"0020d9d54704edd74264ab2de83e04253236b91dab":"getTrashFiles","003e338349fc9faaffdb7fe8784c42cb98899ec388":"getRecentFiles","007b570a57785f01535b5d375be38cb258aa44d016":"getFavorites","00f724b4ca412bcb595c35212354467d12f2529459":"getOutgoingShares","40099588628f710f4d9e22c199e98f338eb465781b":"getSharedFiles","400bd08efdc740ce9ea47f88e1cd6d94740f49bb3a":"toggleFavorite","401016ed009895c71125b90a9a126e5e434cc70c02":"moveToTrash","4063d695a9e853e52488e4eae429ab5f3c0eb3e216":"getFiles","4082fd6d6c6f40bf76de86e0df85c7a7e0c9fa9f91":"uploadFile","4085ad2e2fe1bf148e66865890f87db6e185f5411a":"deleteItem","40983b261685df111a29469abdca7b2d96a175a6e5":"permanentDelete","40c1481f0c0aea852a62ccf66004dcd7fd9ef6f7a9":"searchUsers","40d16576a1197cb79f87d426537e25047357caad19":"getFileShares","40e2810abb4df32d98f4fe01b4a2c23c5578905f69":"restoreFromTrash","60484b10479f56499b8d2807bd2ec3adfa3701149b":"moveItem","604d4be896ae4ef055605db17161a7003806ef5633":"renameItem","609ff9fef701996ebb30337f0573aa84a15e364c28":"createFolder","60e19c8c998f07a6ca71d9eb820622f55035e0d360":"changePermissions","60f535c6df1a1d9b470e0d25988d8759c27e1030c2":"unshareFile","70c646fe7379a2a2d65c23cd27673dff057d09f365":"shareFile"},"",""] */ __turbopack_context__.s([
     "changePermissions",
     ()=>changePermissions,
     "createFolder",
@@ -142,7 +142,7 @@ async function userExists(username) {
         return false;
     }
 }
-async function shareFile(sourcePath, targetUsername) {
+async function shareFile(sourcePath, targetUsername, permission = 'read') {
     // Validate target user exists
     if (!await userExists(targetUsername)) {
         return {
@@ -151,28 +151,38 @@ async function shareFile(sourcePath, targetUsername) {
         };
     }
     try {
-        const sharedRoot = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(__TURBOPACK__imported__module__$5b$externals$5d2f$os__$5b$external$5d$__$28$os$2c$__cjs$29$__["default"].homedir(), 'hpc_shared');
-        const targetUserDir = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(sharedRoot, targetUsername);
-        // Ensure shared directories exist
-        await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].mkdir(targetUserDir, {
-            recursive: true
-        });
-        const sourceName = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].basename(sourcePath);
-        const destPath = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(targetUserDir, sourceName);
+        // --- ACL IMPLEMENTATION ---
+        // Grant Read/Execute permissions to the target user on the source file/folder
+        // using 'setfacl'. This allows the target user to access the file directly via its full path.
+        // We do NOT create symlinks or 'hpc_shared' directories as per user request.
+        // Determine permissions string
+        // read: rx (needs x for directories to list contents)
+        // write: rwx (needs w to create/delete)
+        const aclPerms = permission === 'write' ? 'rwx' : 'rx';
+        // Determine if directory for recursive flag
+        const stats = await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].stat(sourcePath);
+        const recursiveFlag = stats.isDirectory() ? '-R' : '';
         try {
-            await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].symlink(sourcePath, destPath);
+            // Command: setfacl -R -m u:targetUser:rwx /path/to/source
+            await execAsync(`setfacl ${recursiveFlag} -m u:${targetUsername}:${aclPerms} "${sourcePath}"`);
+            // Note: For the user to traverse to this file, they need +x on parent directories.
+            // We assume basic traversal is allowed or the user handles parent permissions.
+            // Automatically opening up home dir permissions recursively is too risky to automate blindly.
             return {
                 success: true,
-                message: `Successfully shared with ${targetUsername}`
+                message: `Access granted to ${targetUsername} (${permission}). They can access via: ${sourcePath}`
             };
-        } catch (e) {
-            if (e.code === 'EEXIST') {
+        } catch (aclError) {
+            console.error("ACL Error:", aclError);
+            // If setfacl fails (e.g. local mac), we return error since this is the ONLY mechanism now.
+            if (("TURBOPACK compile-time value", "development") === 'development' && __TURBOPACK__imported__module__$5b$externals$5d2f$os__$5b$external$5d$__$28$os$2c$__cjs$29$__["default"].platform() === 'darwin') {
                 return {
-                    success: false,
-                    message: `Already shared with ${targetUsername}`
+                    success: true,
+                    message: `[DEV] Simulating ACL grant (${aclPerms}) to ${targetUsername} for ${sourcePath}`
                 };
             }
-            throw e;
+            //TURBOPACK unreachable
+            ;
         }
     } catch (error) {
         console.error("Error sharing file:", error);
@@ -761,7 +771,7 @@ async function searchUsers(query) {
     searchUsers
 ]);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getFiles, "4063d695a9e853e52488e4eae429ab5f3c0eb3e216", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(shareFile, "60c646fe7379a2a2d65c23cd27673dff057d09f365", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(shareFile, "70c646fe7379a2a2d65c23cd27673dff057d09f365", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getFileShares, "40d16576a1197cb79f87d426537e25047357caad19", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getSharedFiles, "40099588628f710f4d9e22c199e98f338eb465781b", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getOutgoingShares, "00f724b4ca412bcb595c35212354467d12f2529459", null);
@@ -842,12 +852,12 @@ __turbopack_context__.s([
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["renameItem"],
     "609ff9fef701996ebb30337f0573aa84a15e364c28",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createFolder"],
-    "60c646fe7379a2a2d65c23cd27673dff057d09f365",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["shareFile"],
     "60e19c8c998f07a6ca71d9eb820622f55035e0d360",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["changePermissions"],
     "60f535c6df1a1d9b470e0d25988d8759c27e1030c2",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unshareFile"]
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unshareFile"],
+    "70c646fe7379a2a2d65c23cd27673dff057d09f365",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["shareFile"]
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f2e$next$2d$internal$2f$server$2f$app$2f$page$2f$actions$2e$js__$7b$__ACTIONS_MODULE0__$3d3e$__$225b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$2922$__$7d$__$5b$app$2d$rsc$5d$__$28$server__actions__loader$2c$__ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i('[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => "[project]/app/actions.ts [app-rsc] (ecmascript)" } [app-rsc] (server actions loader, ecmascript) <locals>');
 var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/app/actions.ts [app-rsc] (ecmascript)");

@@ -3595,6 +3595,11 @@
     outline-color: hsl(var(--ring));
   }
 
+  .focus-visible\:outline-none:focus-visible {
+    --tw-outline-style: none;
+    outline-style: none;
+  }
+
   .disabled\:pointer-events-none:disabled {
     pointer-events: none;
   }

@@ -15,7 +15,7 @@
       "exportedName": "getFiles",
       "filename": "app/actions.ts"
     },
-    "60c646fe7379a2a2d65c23cd27673dff057d09f365": {
+    "70c646fe7379a2a2d65c23cd27673dff057d09f365": {
       "workers": {
         "app/page": {
           "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",

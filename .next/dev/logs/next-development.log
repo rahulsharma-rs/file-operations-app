@@ -194,3 +194,20 @@ find: ./Library/Caches/FamilyCircle: Operation not permitted
 find: ./Library/Caches/com.apple.homed: Operation not permitted
 find: ./Library/Caches/com.apple.ap.adprivacyd: Operation not permitted
 
+[24:32:39.552] Server  LOG      ✓ Compiled in 322ms
+[24:37:57.914] Server  LOG      ✓ Compiled in 86ms
+[24:40:37.714] Server  LOG      ✓ Compiled in 140ms
+[24:42:14.704] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[24:42:14.844] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[24:42:14.844] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[24:42:14.844] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766095181859}
+[24:42:30.014] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[24:42:32.062] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[24:42:32.062] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[24:42:32.062] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","r":"","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766095199079}
+[24:43:27.508] Server  ERROR   ACL Error: Error: Command failed: setfacl -R -m u:rsharma:rx "/Users/rahulsharma/Applications"
+/bin/sh: setfacl: command not found
+
+[24:44:02.690] Server  ERROR   ACL Error: Error: Command failed: setfacl -R -m u:rsharma:rx "/Users/rahulsharma/hpc_shared"
+/bin/sh: setfacl: command not found
+
