@@ -233,7 +233,7 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
             let success = false;
             let method = '';
             // Strategy 1: Standard POSIX ACL (Recursive if dir)
-            const cmdPosixRecursive = `setfacl ${recursiveFlag} -m u:${targetUsername}:${aclPerms} "${sourcePath}"`;
+            const cmdPosixRecursive = `setfacl ${recursiveFlag} -m "u:${targetUsername}:${aclPerms}" ${sourcePath}`;
             if (await tryAclCommand(cmdPosixRecursive)) {
                 success = true;
                 method = 'POSIX (Recursive)';
@@ -241,7 +241,7 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
             // Strategy 2: Standard POSIX ACL (Non-Recursive) 
             // Fallback if recursive failed (e.g. issues with specific files inside)
             if (!success && recursiveFlag) {
-                const cmdPosix = `setfacl -m u:${targetUsername}:${aclPerms} "${sourcePath}"`;
+                const cmdPosix = `setfacl -m "u:${targetUsername}:${aclPerms}" ${sourcePath}`;
                 if (await tryAclCommand(cmdPosix)) {
                     success = true;
                     method = 'POSIX (Non-Recursive)';
@@ -252,7 +252,7 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
             if (!success) {
                 const nfs4Perms = permission === 'write' ? 'RWX' : 'RX';
                 // -a: add, A: allow, ::user:perms
-                const cmdNfs4 = `nfs4_setfacl -a A::${targetUsername}:${nfs4Perms} "${sourcePath}"`;
+                const cmdNfs4 = `nfs4_setfacl -a A::${targetUsername}:${nfs4Perms} ${sourcePath}`;
                 if (await tryAclCommand(cmdNfs4)) {
                     success = true;
                     method = 'NFSv4';
@@ -281,7 +281,7 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
                 try {
                     // Grant execute (x) ONLY. This allows traversal but not listing (r) or writing (w).
                     // This is minimal privilege to reach the shared content.
-                    await execAsync(`setfacl -m u:${targetUsername}:x "${currentDir}"`);
+                    await execAsync(`setfacl -m "u:${targetUsername}:x" ${currentDir}`);
                 } catch (e) {
                     console.warn(`Failed to set traversal ACL on ${currentDir}:`, e);
                 // Continue anyway, maybe it already works or we aren't owner (though we checked root)
