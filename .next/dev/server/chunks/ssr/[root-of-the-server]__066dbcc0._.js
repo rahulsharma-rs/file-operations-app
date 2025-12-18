@@ -221,11 +221,18 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
         // ... existing setup ...
         // Helper to run ACL command
         const tryAclCommand = async (cmd)=>{
+            console.log(`[ACL] Executing: ${cmd}`);
             try {
-                const { stderr } = await execAsync(cmd);
-                if (stderr) console.warn("ACL Warning:", stderr);
+                const { stdout, stderr } = await execAsync(cmd);
+                if (stderr) {
+                    // Log warning but don't fail immediately if exit code was 0 (which it is if we are here)
+                    console.warn(`[ACL] Warning for ${cmd}:`, stderr);
+                }
+                console.log(`[ACL] Success: ${stdout}`);
                 return true;
             } catch (e) {
+                console.error(`[ACL] Failed: ${cmd}`, e);
+                // e.code is the exit code. 
                 return false;
             }
         };
