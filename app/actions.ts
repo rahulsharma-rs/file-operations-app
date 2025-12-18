@@ -515,8 +515,8 @@ export async function uploadFile(formData: FormData): Promise<{ success: boolean
         const relativePath = path.join(...currentPathSegments)
         const targetDir = path.join(BASE_PATH, relativePath)
 
-        if (!targetDir.startsWith(BASE_PATH)) {
-            throw new Error("Access denied")
+        if (!isPathAllowed(targetDir)) {
+            throw new Error("Access denied: Path not allowed")
         }
 
         await fs.writeFile(path.join(targetDir, file.name), buffer)
@@ -532,8 +532,8 @@ export async function createFolder(pathSegments: string[], folderName: string): 
         const relativePath = path.join(...pathSegments)
         const targetDir = path.join(BASE_PATH, relativePath, folderName)
 
-        if (!targetDir.startsWith(BASE_PATH)) {
-            throw new Error("Access denied")
+        if (!isPathAllowed(targetDir)) {
+            throw new Error("Access denied: Path not allowed")
         }
 
         await fs.mkdir(targetDir)
@@ -715,7 +715,8 @@ export async function renameItem(currentPath: string, newName: string): Promise<
         const newPath = path.join(dir, newName)
 
         // Security check
-        if (!newPath.startsWith(BASE_PATH)) throw new Error("Access denied")
+        // Security check
+        if (!isPathAllowed(newPath)) throw new Error("Access denied: Path not allowed")
 
         await fs.rename(currentPath, newPath)
         return { success: true, message: `Renamed to ${newName}` }

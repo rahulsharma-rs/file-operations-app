@@ -587,8 +587,8 @@ async function uploadFile(formData) {
         const buffer = Buffer.from(await file.arrayBuffer());
         const relativePath = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(...currentPathSegments);
         const targetDir = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(BASE_PATH, relativePath);
-        if (!targetDir.startsWith(BASE_PATH)) {
-            throw new Error("Access denied");
+        if (!isPathAllowed(targetDir)) {
+            throw new Error("Access denied: Path not allowed");
         }
         await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].writeFile(__TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(targetDir, file.name), buffer);
         return {
@@ -607,8 +607,8 @@ async function createFolder(pathSegments, folderName) {
     try {
         const relativePath = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(...pathSegments);
         const targetDir = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(BASE_PATH, relativePath, folderName);
-        if (!targetDir.startsWith(BASE_PATH)) {
-            throw new Error("Access denied");
+        if (!isPathAllowed(targetDir)) {
+            throw new Error("Access denied: Path not allowed");
         }
         await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].mkdir(targetDir);
         return {
@@ -802,7 +802,8 @@ async function renameItem(currentPath, newName) {
         const dir = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].dirname(currentPath);
         const newPath = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(dir, newName);
         // Security check
-        if (!newPath.startsWith(BASE_PATH)) throw new Error("Access denied");
+        // Security check
+        if (!isPathAllowed(newPath)) throw new Error("Access denied: Path not allowed");
         await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].rename(currentPath, newPath);
         return {
             success: true,
