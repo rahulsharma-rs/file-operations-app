@@ -22,7 +22,9 @@ import {
     renameItem,
     moveItem,
     toggleFavorite,
-    getFavorites
+    getFavorites,
+    getRelativePath,
+    getDataPath
 } from "@/app/actions"
 import { FileItem, SharedFileItem } from "@/app/types"
 import { Button } from "@/components/ui/button"
@@ -158,10 +160,19 @@ export function FileExplorer() {
         }
     }
 
-    const handleNavigate = (view: string) => {
-        setCurrentView(view)
-        setCurrentPath([])
-        setSelectedFile(null)
+    const handleNavigate = async (view: string) => {
+        if (view === 'data') {
+            const segments = await getDataPath()
+            setCurrentPath(segments)
+            setCurrentView('home')
+        } else {
+            setCurrentView(view)
+        }
+
+        if (view === 'home') {
+            setCurrentPath([])
+        }
+        setIsDetailsOpen(false)
     }
 
     const handleFileSelect = (file: FileItem) => {

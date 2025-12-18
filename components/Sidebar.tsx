@@ -33,6 +33,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Sidebar({ className, activeView = "home", onNavigate, onNewItem }: SidebarProps) {
     const navItems = [
         { name: "Home", icon: Home, id: "home" },
+        { name: "Data", icon: FolderPlus, id: "data" },
         { name: "Shared Projects", icon: Users, id: "shared" },
         { name: "Recent Files", icon: Clock, id: "recent" },
         { name: "Favorites", icon: Star, id: "favorites" },

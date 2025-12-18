@@ -255,6 +255,21 @@
       "filename": "app/actions.ts",
       "exportedName": "getFavorites"
     },
+    "00c89052df53b78dcb1d808ba92feca4271fe45d8e": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getDataPath",
+          "filename": "app/actions.ts"
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      },
+      "filename": "app/actions.ts",
+      "exportedName": "getDataPath"
+    },
     "40d16576a1197cb79f87d426537e25047357caad19": {
       "workers": {
         "app/page": {
@@ -269,6 +284,36 @@
       },
       "filename": "app/actions.ts",
       "exportedName": "getFileShares"
+    },
+    "405b43a83ec49cfc8833ff9ccc7168ddaf28b37aee": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getFileAcls",
+          "filename": "app/actions.ts"
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      },
+      "filename": "app/actions.ts",
+      "exportedName": "getFileAcls"
+    },
+    "6047e3679e96dac23760dad3649b0526b947378009": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "removeFileAccess",
+          "filename": "app/actions.ts"
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      },
+      "filename": "app/actions.ts",
+      "exportedName": "removeFileAccess"
     },
     "40c1481f0c0aea852a62ccf66004dcd7fd9ef6f7a9": {
       "workers": {

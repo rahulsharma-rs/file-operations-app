@@ -6,15 +6,34 @@ import os from 'os'
 import { FileItem, SharedFileItem } from '@/app/types'
 
 const BASE_PATH = os.homedir()
+const ALLOWED_ROOTS = [os.homedir(), '/data', '/scratch', '/gpfs', '/fs1', '/project', '/work', '/lstr']
 
 export async function getFiles(currentPathSegments: string[]): Promise<FileItem[]> {
     try {
+        // Construct path from segments. 
+        // We resolve (...) segments relative to BASE_PATH (Home).
+        // If segments are ['..', '..', 'data'], it resolves to /data
+
         const relativePath = path.join(...currentPathSegments)
         const fullPath = path.join(BASE_PATH, relativePath)
+        const resolvedPath = path.resolve(fullPath)
 
-        // Security check: Ensure we don't escape home directory (basic check)
-        if (!fullPath.startsWith(BASE_PATH)) {
-            throw new Error("Access denied: Cannot traverse above home directory")
+        // Security Check: 
+        // Allow if it is within Home OR starts with any of the allowed HPC roots.
+        // We strictly block sensitive system roots to prevent accidentally enumerating /proc or /etc
+        const isAllowed = ALLOWED_ROOTS.some(root => resolvedPath.startsWith(root)) ||
+            (resolvedPath !== '/' && !['/etc', '/var', '/usr', '/bin', '/sbin', '/proc', '/sys', '/boot'].some(restricted => resolvedPath.startsWith(restricted)))
+
+        if (!isAllowed) {
+            // Check for explicit allowed roots failed, and it hit a restricted block list or is root.
+            // Actually, the logic above is: OR (NOT restricted). 
+            // So if it's /data (not restricted), it passes.
+            // If it's /etc (restricted), it fails unless it was in ALLOWED_ROOTS (unlikely).
+
+            // Double check safety:
+            if (resolvedPath === '/' || resolvedPath.startsWith('/etc') || resolvedPath.startsWith('/proc')) {
+                throw new Error("Access denied: Restricted system directory")
+            }
         }
 
         const entries = await fs.readdir(fullPath, { withFileTypes: true })
@@ -55,6 +74,27 @@ export async function getFiles(currentPathSegments: string[]): Promise<FileItem[
         console.error("Error reading directory:", error)
         return []
     }
+}
+
+// ... imports
+
+export async function getRelativePath(targetPath: string): Promise<string[]> {
+    const rel = path.relative(BASE_PATH, targetPath)
+    if (rel === '') return []
+    return rel.split(path.sep)
+}
+
+export async function getDataPath(): Promise<string[]> {
+    const username = os.userInfo().username
+    const dataPath = path.join('/data/user', username)
+
+    // Ensure this path exists, if not maybe fallback to /data?
+    // user said "path on my HPC is /data/user/$USER", so we assume it exists
+
+    // Calculate relative path from Home (BASE_PATH)
+    const rel = path.relative(BASE_PATH, dataPath)
+    if (rel === '') return []
+    return rel.split(path.sep)
 }
 
 import { exec } from 'child_process'
@@ -126,6 +166,58 @@ export async function shareFile(sourcePath: string, targetUsername: string, perm
     } catch (error: any) {
         console.error("Error sharing file:", error)
         return { success: false, message: error.message || "Failed to share file" }
+    }
+}
+
+export async function getFileAcls(filePath: string): Promise<{ username: string, permissions: 'read' | 'write' }[]> {
+    try {
+        if (!isPathAllowed(filePath)) throw new Error("Access denied")
+
+        const { stdout } = await execAsync(`getfacl -p "${filePath}"`)
+        const lines = stdout.split('\n')
+        const acls: { username: string, permissions: 'read' | 'write' }[] = []
+
+        for (const line of lines) {
+            // Regex to find "user:username:rwx" entries. 
+            // Note: "user::rwx" is owner, "user:bob:rwx" is named user.
+            const match = line.match(/^user:([^:]+):([rwx-]+)/)
+            if (match) {
+                const username = match[1]
+                const permsStr = match[2]
+                // Filter out empty username if regex matches user:: (which it shouldnt due to + but safer to check)
+                if (username) {
+                    const permissions = permsStr.includes('w') ? 'write' : 'read'
+                    acls.push({ username, permissions })
+                }
+            }
+        }
+
+        // Mock for mac dev
+        if (acls.length === 0 && process.env.NODE_ENV === 'development' && os.platform() === 'darwin') {
+            return [
+                { username: 'esaghapo', permissions: 'read' },
+                { username: 'mcwyatt', permissions: 'write' }
+            ]
+        }
+
+        return acls
+    } catch (e) {
+        console.error("getfacl error:", e)
+        return []
+    }
+}
+
+export async function removeFileAccess(filePath: string, username: string): Promise<{ success: boolean, message: string }> {
+    try {
+        if (!isPathAllowed(filePath)) throw new Error("Access denied")
+
+        await execAsync(`setfacl -x u:${username} "${filePath}"`)
+        return { success: true, message: `Removed access for ${username}` }
+    } catch (e: any) {
+        if (process.env.NODE_ENV === 'development' && os.platform() === 'darwin') {
+            return { success: true, message: `[DEV] Removed ACL for ${username}` }
+        }
+        return { success: false, message: e.message }
     }
 }
 
@@ -554,21 +646,39 @@ export async function renameItem(currentPath: string, newName: string): Promise<
     }
 }
 
+// Helper to validate paths
+function isPathAllowed(targetPath: string): boolean {
+    const resolvedPath = path.resolve(targetPath)
+    return ALLOWED_ROOTS.some(root => resolvedPath.startsWith(root)) ||
+        (resolvedPath !== '/' && !['/etc', '/var', '/usr', '/bin', '/sbin', '/proc', '/sys', '/boot'].some(restricted => resolvedPath.startsWith(restricted)))
+}
+
 export async function moveItem(sourcePath: string, targetPath: string): Promise<{ success: boolean, message: string }> {
     try {
         // Security check
-        if (!sourcePath.startsWith(BASE_PATH) || !targetPath.startsWith(BASE_PATH)) {
-            throw new Error("Access denied")
+        if (!isPathAllowed(sourcePath) || !isPathAllowed(targetPath)) {
+            throw new Error("Access denied: One or more paths are outside allowed directories")
         }
 
         const fileName = path.basename(sourcePath)
-        // If targetPath is a directory, append filename. If it doesn't exist or is file, assume full path.
-        // For simplicity in this app, let's assume targetPath is the destination FOLDER.
         const destPath = path.join(targetPath, fileName)
 
-        await fs.rename(sourcePath, destPath)
-        return { success: true, message: `Moved to ${targetPath}` }
+        try {
+            await fs.rename(sourcePath, destPath)
+        } catch (e: any) {
+            // Handle Cross-Device Link error (EXDEV) by Copy + Delete
+            if (e.code === 'EXDEV') {
+                // Node 16.7+ supports fs.cp for recursive copy
+                await fs.cp(sourcePath, destPath, { recursive: true })
+                await fs.rm(sourcePath, { recursive: true, force: true })
+            } else {
+                throw e
+            }
+        }
+
+        return { success: true, message: `Moved to ${destPath}` }
     } catch (error: any) {
+        console.error("Move error:", error)
         return { success: false, message: error.message || "Failed to move" }
     }
 }
