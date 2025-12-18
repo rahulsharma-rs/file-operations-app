@@ -146,15 +146,46 @@ export async function shareFile(sourcePath: string, targetUsername: string, perm
         const stats = await fs.stat(sourcePath)
         const recursiveFlag = stats.isDirectory() ? '-R' : ''
 
+        // ...
+
         try {
+            // 1. Apply ACL to the target file/folder
             // Command: setfacl -R -m u:targetUser:rwx /path/to/source
             await execAsync(`setfacl ${recursiveFlag} -m u:${targetUsername}:${aclPerms} "${sourcePath}"`)
 
-            // Note: For the user to traverse to this file, they need +x on parent directories.
-            // We assume basic traversal is allowed or the user handles parent permissions.
-            // Automatically opening up home dir permissions recursively is too risky to automate blindly.
+            // 2. Ensure Traversal Access (+x) on parent directories
+            // If the shared file is deep inside /data/user/alice/foo/bar,
+            // bob needs +x on /data/user/alice, /data/user/alice/foo to reach it.
+            // We ONLY do this for directories OWNED by the current user (e.g. inside Home or /data/user/$USER).
 
-            return { success: true, message: `Access granted to ${targetUsername} (${permission}). They can access via: ${sourcePath}` }
+            const currentUser = os.userInfo().username
+            const userRoots = [
+                os.homedir(),
+                path.join('/data/user', currentUser),
+                path.join('/scratch', currentUser)
+            ]
+
+            let currentDir = path.dirname(sourcePath)
+
+            // Walk up until we hit a system root or run out of path
+            while (currentDir !== '/' && currentDir !== '.') {
+                // Check if we are inside a user root
+                const isInsideUserRoot = userRoots.some(root => currentDir.startsWith(root))
+                if (!isInsideUserRoot) break; // Stop if we go above user's space (e.g. /data/user)
+
+                try {
+                    // Grant execute (x) ONLY. This allows traversal but not listing (r) or writing (w).
+                    // This is minimal privilege to reach the shared content.
+                    await execAsync(`setfacl -m u:${targetUsername}:x "${currentDir}"`)
+                } catch (e) {
+                    console.warn(`Failed to set traversal ACL on ${currentDir}:`, e)
+                    // Continue anyway, maybe it already works or we aren't owner (though we checked root)
+                }
+
+                currentDir = path.dirname(currentDir)
+            }
+
+            return { success: true, message: `Access granted to ${targetUsername} (${permission}). Traversal permissions updated.` }
         } catch (aclError: any) {
             console.error("ACL Error:", aclError)
             // If setfacl fails (e.g. local mac), we return error since this is the ONLY mechanism now.
