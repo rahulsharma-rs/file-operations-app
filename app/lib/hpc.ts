@@ -193,7 +193,8 @@ export async function submitAclJob(targetPath: string, user: string, permission:
             slurm_job_id: null,
             status: 'pending'
         })
-    } catch (e) {
+    } catch (e: any) {
+        await logSystemEvent('ERR', `Database error during job record insertion: ${e.message}`)
         console.error("Failed to insert job record:", e)
         return { success: false, message: "Failed to record job" }
     }
