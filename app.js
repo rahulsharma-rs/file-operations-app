@@ -18,6 +18,7 @@ const port = parseInt(process.env.PORT, 10) || 3000
 async function startServer() {
     console.log('Starting Next.js under Open OnDemand')
     console.log('Base path: /pun/dev/file-manager')
+    console.log(`Current User: ${require('os').userInfo().username}`)
     console.log(`NODE_ENV=${process.env.NODE_ENV}, dev=${dev}`)
 
     const app = next({ dev, hostname, port })
