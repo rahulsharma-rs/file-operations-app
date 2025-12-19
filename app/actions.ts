@@ -98,10 +98,7 @@ export async function getDataPath(): Promise<string[]> {
     return rel.split(path.sep)
 }
 
-import { exec } from 'child_process'
-import util from 'util'
-
-const execAsync = util.promisify(exec)
+import { execWithLog } from '@/app/lib/hpc'
 
 // Helper to get current execution user
 export async function getCurrentUser(): Promise<string> {
@@ -118,7 +115,7 @@ const usernameCache = new Map<number, string>()
 async function getUsername(uid: number): Promise<string> {
     if (usernameCache.has(uid)) return usernameCache.get(uid)!
     try {
-        const { stdout } = await execAsync(`id -nu ${uid}`)
+        const { stdout } = await execWithLog(`id -nu ${uid}`)
         const name = stdout.trim()
         usernameCache.set(uid, name)
         return name
@@ -129,7 +126,7 @@ async function getUsername(uid: number): Promise<string> {
 
 async function userExists(username: string): Promise<boolean> {
     try {
-        await execAsync(`id -u ${username}`)
+        await execWithLog(`id -u ${username}`)
         return true
     } catch (error) {
         return false
@@ -197,7 +194,7 @@ export async function getFileAcls(filePath: string): Promise<{ username: string,
     try {
         if (!isPathAllowed(filePath)) throw new Error("Access denied")
 
-        const { stdout } = await execAsync(`getfacl -p "${filePath}"`)
+        const { stdout } = await execWithLog(`getfacl -p "${filePath}"`)
         const lines = stdout.split('\n')
         const acls: { username: string, permissions: 'read' | 'write' }[] = []
 
@@ -235,7 +232,7 @@ export async function removeFileAccess(filePath: string, username: string): Prom
     try {
         if (!isPathAllowed(filePath)) throw new Error("Access denied")
 
-        await execAsync(`setfacl -x u:${username} "${filePath}"`)
+        await execWithLog(`setfacl -x u:${username} "${filePath}"`)
         return { success: true, message: `Removed access for ${username}` }
     } catch (e: any) {
         if (process.env.NODE_ENV === 'development' && os.platform() === 'darwin') {
@@ -608,7 +605,7 @@ export async function getRecentFiles(): Promise<FileItem[]> {
         const cmd = `find . -maxdepth 4 -not -path '*/.*' -not -path '*/node_modules/*' -not -path '*/Library/*' -mtime -7 -type f | head -n 50`
 
         try {
-            const { stdout } = await execAsync(cmd, {
+            const { stdout } = await execWithLog(cmd, {
                 cwd: BASE_PATH,
                 timeout: 5000 // 5 second timeout protection
             })
@@ -777,7 +774,7 @@ export async function searchUsers(query: string): Promise<{ username: string, ui
 
     try {
         try {
-            const { stdout } = await execAsync(`getent passwd | grep -i "${query}" | head -n 20`)
+            const { stdout } = await execWithLog(`getent passwd | grep -i "${query}" | head -n 20`)
             if (stdout) {
                 return stdout.trim().split('\n').map(line => {
                     const parts = line.split(':')
@@ -792,7 +789,7 @@ export async function searchUsers(query: string): Promise<{ username: string, ui
         }
 
         try {
-            const { stdout } = await execAsync(`dscl . -list /Users | grep -i "${query}" | head -n 20`)
+            const { stdout } = await execWithLog(`dscl . -list /Users | grep -i "${query}" | head -n 20`)
             if (stdout) {
                 return stdout.trim().split('\n').map(line => ({
                     username: line.trim()
