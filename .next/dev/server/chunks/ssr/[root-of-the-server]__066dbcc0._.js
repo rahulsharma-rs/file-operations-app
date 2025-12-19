@@ -214,7 +214,7 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
         // Determine permissions string
         // read: rx (needs x for directories to list contents)
         // write: rwx (needs w to create/delete)
-        const aclPerms = permission === 'write' ? 'rwx' : 'rx';
+        const aclPerms = permission === 'write' ? 'rwX' : 'rX';
         // Determine if directory for recursive flag
         const stats = await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].stat(sourcePath);
         const recursiveFlag = stats.isDirectory() ? '-R' : '';
@@ -280,7 +280,7 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
                 try {
                     // Grant execute (x) ONLY. This allows traversal but not listing (r) or writing (w).
                     // This is minimal privilege to reach the shared content.
-                    await execAsync(`setfacl -m "u:${targetUsername}:x" ${currentDir}`);
+                    await execAsync(`setfacl -m "u:${targetUsername}:X" ${currentDir}`);
                 } catch (e) {
                     console.warn(`Failed to set traversal ACL on ${currentDir}:`, e);
                 // Continue anyway, maybe it already works or we aren't owner (though we checked root)
