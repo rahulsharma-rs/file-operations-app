@@ -705,14 +705,12 @@ export async function moveItem(sourcePath: string, targetPath: string): Promise<
             }
         }
 
-    }
-
         await logSystemEvent('SUCCESS', `Moved ${sourcePath} to ${destPath}`)
-    return { success: true, message: `Moved to ${destPath}` }
-} catch (error: any) {
-    console.error("Move error:", error)
-    return { success: false, message: error.message || "Failed to move" }
-}
+        return { success: true, message: `Moved to ${destPath}` }
+    } catch (error: any) {
+        console.error("Move error:", error)
+        return { success: false, message: error.message || "Failed to move" }
+    }
 }
 
 const FAVORITES_PATH = path.join(os.homedir(), '.hpc_favorites.json')
