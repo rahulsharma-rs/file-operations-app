@@ -70,7 +70,11 @@ git pull origin main
 You must build the application before running it on OOD.
 
 ```bash
-# Load nodejs module if required, e.g., module load nodejs
+# 1. Config Environment (HPC Specific)
+export PASSENGER_BASE_URI="/pun/dev/file-manager" 
+module load nodejs/20.9.0-GCCcore-13.2.0
+
+# 2. Install & Build
 npm install
 npm run build
 ```

@@ -3,7 +3,7 @@ const { parse } = require('url')
 const next = require('next')
 
 // Detect Passenger / Open OnDemand
-const isOOD = true // 🔒 hardcode for this deployment
+const isOOD = process.env.PASSENGER_BASE_URI ? true : false
 
 // Force production under Passenger
 if (isOOD) {
@@ -11,7 +11,7 @@ if (isOOD) {
     process.env.NEXT_TELEMETRY_DISABLED = '1'
 }
 
-const dev = process.env.NODE_ENV === 'development'
+const dev = process.env.NODE_ENV !== 'production' // Better check since we might set production above
 const hostname = '0.0.0.0'
 const port = parseInt(process.env.PORT, 10) || 3000
 
@@ -23,16 +23,7 @@ async function startServer() {
     console.log(`NODE_ENV=${process.env.NODE_ENV}, dev=${dev}`)
 
     // Log startup to persistent debug file
-    try {
-        const fs = require('fs')
-        const path = require('path')
-        const os = require('os')
-        const logPath = path.join(os.homedir(), '.hpc_debug.log')
-        const msg = `[${new Date().toISOString()}] [STARTUP] App started. Process User: ${username} (expecting ${process.env.USER})\n`
-        fs.appendFileSync(logPath, msg)
-    } catch (e) {
-        console.error("Failed to write to debug log", e)
-    }
+    logSystemInfo()
 
     const app = next({ dev, hostname, port })
     const handle = app.getRequestHandler()
@@ -51,6 +42,49 @@ async function startServer() {
     }).listen(port, () => {
         console.log(`> Ready via Passenger`)
     })
+}
+
+function logSystemInfo() {
+    try {
+        const fs = require('fs')
+        const path = require('path')
+        const os = require('os')
+        const userInfo = os.userInfo()
+        const logPath = path.join(os.homedir(), 'hpc_app_debug.log')
+
+        const logData = {
+            timestamp: new Date().toISOString(),
+            process: {
+                pid: process.pid,
+                uid: process.getuid ? process.getuid() : 'N/A',
+                gid: process.getgid ? process.getgid() : 'N/A',
+                cwd: process.cwd(),
+                execPath: process.execPath,
+                version: process.version
+            },
+            user: {
+                username: userInfo.username,
+                uid: userInfo.uid,
+                gid: userInfo.gid,
+                shell: userInfo.shell,
+                homedir: userInfo.homedir
+            },
+            environment: {
+                USER: process.env.USER,
+                LOGNAME: process.env.LOGNAME,
+                HOME: process.env.HOME,
+                NODE_ENV: process.env.NODE_ENV,
+                PASSENGER_BASE_URI: process.env.PASSENGER_BASE_URI,
+                // Add any other relevant OOD/Passenger vars if known, getting all might be too much noise
+            }
+        }
+
+        const msg = JSON.stringify(logData, null, 2) + '\n----------------------------------------\n'
+        fs.appendFileSync(logPath, msg)
+        console.log(`[Startup] Detailed system info logged to ${logPath}`)
+    } catch (err) {
+        console.error('[Startup] Failed to write system info log:', err)
+    }
 }
 
 startServer().catch(err => {

@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 // 🔒 HARD-CODE Open OnDemand base path
-const OOD_BASE_PATH = '/pun/dev/file-manager'
-
-// Allow local override if needed
-const basePath = process.env.NEXT_BASE_PATH || OOD_BASE_PATH
+// Only used if specifically set in environment, otherwise default to OOD path for local dev
+const basePath = process.env.PASSENGER_BASE_URI || '/pun/dev/file-manager'
 
 const nextConfig = {
   basePath,
