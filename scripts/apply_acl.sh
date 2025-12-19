@@ -15,6 +15,7 @@ MODE="$4" # New argument: set or remove
 
 echo "========================================================"
 echo "Job Started at $(date)"
+echo "Host: $(hostname)"
 echo "Args: User='$TARGET_USER' Path='$TARGET_PATH' Perms='$PERMS' Mode='$MODE'"
 echo "========================================================"
 

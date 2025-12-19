@@ -4,7 +4,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
 import { FileItem, SharedFileItem } from '@/app/types'
-import { submitAclJob, getExecutionUser, checkOwnership, getPermString } from '@/app/lib/hpc'
+import { submitAclJob, getExecutionUser, checkOwnership, getPermString, logSystemEvent } from '@/app/lib/hpc'
 import { getJobs, JobRecord } from '@/app/lib/db'
 
 const BASE_PATH = os.homedir()
@@ -163,6 +163,8 @@ export async function shareFile(pathSegmentsOrPath: string[] | string, username:
         targetPath = pathSegmentsOrPath
     }
 
+    await logSystemEvent('INFO', `Request to share ${targetPath} with ${username} as ${permission}`)
+
     // Check ownership first
     // Check ownership first
     const isOwner = await checkOwnership(targetPath)
@@ -171,6 +173,8 @@ export async function shareFile(pathSegmentsOrPath: string[] | string, username:
     }
 
     const result = await submitAclJob(targetPath, username, permission)
+    if (result.success) await logSystemEvent('SUCCESS', `Share job submitted for ${targetPath}`)
+    else await logSystemEvent('FAIL', `Share job submission failed: ${result.message}`)
     return result
 }
 
@@ -180,7 +184,10 @@ export async function unshareFile(username: string, fileName: string) {
         targetPath = path.join(BASE_PATH, targetPath)
     }
 
+    await logSystemEvent('INFO', `Request to unshare ${targetPath} with ${username}`)
+
     const result = await submitAclJob(targetPath, username, 'none')
+    if (result.success) await logSystemEvent('SUCCESS', `Unshare job submitted for ${targetPath}`)
     return result
 }
 
@@ -505,6 +512,7 @@ export async function moveToTrash(itemPath: string): Promise<{ success: boolean,
         await fs.writeFile(`${trashPath}.meta`, JSON.stringify(metadata))
 
         await fs.rename(itemPath, trashPath)
+        await logSystemEvent('SUCCESS', `Moved to trash: ${itemPath}`)
         return { success: true, message: `Moved to trash` }
     } catch (error: any) {
         console.error("Trash error:", error)
@@ -585,6 +593,7 @@ export async function permanentDelete(itemPath: string): Promise<{ success: bool
         }
         await fs.rm(itemPath, { recursive: true, force: true })
         try { await fs.unlink(`${itemPath}.meta`) } catch (e) { }
+        await logSystemEvent('SUCCESS', `Permanently deleted: ${itemPath}`)
         return { success: true, message: "Permanently deleted" }
     } catch (error: any) {
         return { success: false, message: error.message }
@@ -659,6 +668,7 @@ export async function renameItem(currentPath: string, newName: string): Promise<
         if (!isPathAllowed(newPath)) throw new Error("Access denied: Path not allowed")
 
         await fs.rename(currentPath, newPath)
+        await logSystemEvent('SUCCESS', `Renamed ${currentPath} to ${newName}`)
         return { success: true, message: `Renamed to ${newName}` }
     } catch (error: any) {
         return { success: false, message: error.message || "Failed to rename" }
@@ -695,11 +705,14 @@ export async function moveItem(sourcePath: string, targetPath: string): Promise<
             }
         }
 
-        return { success: true, message: `Moved to ${destPath}` }
-    } catch (error: any) {
-        console.error("Move error:", error)
-        return { success: false, message: error.message || "Failed to move" }
     }
+
+        await logSystemEvent('SUCCESS', `Moved ${sourcePath} to ${destPath}`)
+    return { success: true, message: `Moved to ${destPath}` }
+} catch (error: any) {
+    console.error("Move error:", error)
+    return { success: false, message: error.message || "Failed to move" }
+}
 }
 
 const FAVORITES_PATH = path.join(os.homedir(), '.hpc_favorites.json')

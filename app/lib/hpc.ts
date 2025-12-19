@@ -45,39 +45,51 @@ export async function execWithLog(command: string, options: any = {}): Promise<{
 }
 
 /**
+ * Centralized logging helper.
+ * Logs to console and to a persistent file in the home directory.
+ */
+export async function logSystemEvent(level: 'INFO' | 'CMD' | 'OUT' | 'ERR' | 'FAIL' | 'SUCCESS', message: string) {
+    const logPath = path.join(os.homedir(), 'hpc_app_debug.log')
+    const timestamp = new Date().toISOString()
+    const hostname = os.hostname()
+
+    // Format: [2023-10-27T10:00:00Z] [my-host] [INFO] Message
+    const logLine = `[${timestamp}] [${hostname}] [${level}] ${message}\n`
+
+    // Write to file (ignore errors to prevent crash loops)
+    try {
+        await fs.appendFile(logPath, logLine)
+    } catch (e) { /* ignore */ }
+
+    // Also log to console for dev visibility
+    if (level === 'ERR' || level === 'FAIL') {
+        console.error(logLine.trim())
+    } else {
+        console.log(logLine.trim())
+    }
+}
+
+/**
  * Executes a file with arguments safely and logs it.
  */
 export async function execFileWithLog(file: string, args: string[], options: any = {}): Promise<{ stdout: string, stderr: string }> {
-    const logPath = path.join(os.homedir(), 'hpc_app_debug.log')
-    const timestamp = new Date().toISOString()
-
     // Log Command
-    try {
-        // Log in a way that shows individual args
-        const cmdLog = `[${timestamp}] [CMD] ${file} ${JSON.stringify(args)}\n`
-        await fs.appendFile(logPath, cmdLog)
-    } catch (e) { /* worst case ignore logging error */ }
+    await logSystemEvent('CMD', `${file} ${JSON.stringify(args)} (start)`)
 
     try {
         const { stdout, stderr } = await execFileAsync(file, args, options)
 
-        // Log Output
-        try {
-            const outLog = `[${timestamp}] [OUT] ${stdout.trim().substring(0, 500)}${stdout.length > 500 ? '...' : ''}\n`
-            await fs.appendFile(logPath, outLog)
-            if (stderr) {
-                const errLog = `[${timestamp}] [ERR] ${stderr.trim()}\n`
-                await fs.appendFile(logPath, errLog)
-            }
-        } catch (e) { /* ignore */ }
+        // Log Output (truncated)
+        await logSystemEvent('OUT', stdout.trim().substring(0, 500) + (stdout.length > 500 ? '...' : ''))
+
+        if (stderr) {
+            await logSystemEvent('ERR', stderr.trim())
+        }
 
         return { stdout, stderr }
     } catch (error: any) {
         // Log Failure
-        try {
-            const failLog = `[${timestamp}] [FAIL] ${error.message}\n`
-            await fs.appendFile(logPath, failLog)
-        } catch (e) { /* ignore */ }
+        await logSystemEvent('FAIL', `Command failed: ${error.message}`)
         throw error
     }
 }
