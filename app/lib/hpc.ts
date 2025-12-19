@@ -170,6 +170,18 @@ export async function applyAcl(targetPath: string, user: string, permission: 're
 
     const permString = getPermString(permission)
 
+    // Enhanced Debugging: Capture system info before applying ACLs
+    // This helps diagnose HPC node specific issues (filesystem support, command availability)
+    try {
+        await execWithLog('hostname')
+        await execWithLog(`df -T "${targetPath}"`)
+        await execWithLog('which setfacl')
+        await execWithLog('setfacl --version')
+    } catch (debugError) {
+        // Ignore debug command failures so we don't block the actual operation
+        console.warn('Failed to capture debug info:', debugError)
+    }
+
     try {
         if (permission === 'none') {
             // Remove
