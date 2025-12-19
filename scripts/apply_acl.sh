@@ -12,22 +12,39 @@ TARGET_PATH="$2"
 PERMS="$3"
 MODE="$4" # New argument: set or remove
 
+
+echo "========================================================"
+echo "Job Started at $(date)"
+echo "Args: User='$TARGET_USER' Path='$TARGET_PATH' Perms='$PERMS' Mode='$MODE'"
+echo "========================================================"
+
 if [ "$MODE" == "remove" ]; then
+    echo "Running: setfacl -x u:${TARGET_USER} \"$TARGET_PATH\""
     setfacl -x "u:${TARGET_USER}" "$TARGET_PATH"
+    echo "Success: Removed ACL from target."
 else
-    # 1. Apply permission to the target file/folder
+    echo "Running: setfacl -m u:${TARGET_USER}:${PERMS} \"$TARGET_PATH\""
     setfacl -m "u:${TARGET_USER}:${PERMS}" "$TARGET_PATH"
+    echo "Success: Applied ACL to target."
 
     # 2. Traverse up and grant +X (execute) to parents for traversal
-    # We start from the parent directory of the target
     CURRENT_DIR=$(dirname "$TARGET_PATH")
+    echo "Starting parent traversal from: $CURRENT_DIR"
 
     # Loop until we hit root or a directory we can't modify
     while [ "$CURRENT_DIR" != "/" ] && [ "$CURRENT_DIR" != "." ]; do
         # Try to set execute permission for traversal.
-        # Use || break to stop if we don't have permission (e.g. system dirs)
-        setfacl -m "u:${TARGET_USER}:X" "$CURRENT_DIR" 2>/dev/null || break
+        if setfacl -m "u:${TARGET_USER}:X" "$CURRENT_DIR" 2>/dev/null; then
+             echo "  + Granted traversal (+X) to: $CURRENT_DIR"
+        else
+             echo "  x Stopped traversal at: $CURRENT_DIR (Permission denied or System Root)"
+             break
+        fi
         
         CURRENT_DIR=$(dirname "$CURRENT_DIR")
     done
 fi
+
+echo "========================================================"
+echo "Job Completed at $(date)"
+

@@ -196,6 +196,7 @@ export async function submitAclJob(targetPath: string, user: string, permission:
         const match = stdout.match(/Submitted batch job (\d+)/)
         const slurmId = match ? match[1] : 'unknown'
 
+        console.log(`[ACL Job] Submitted job ${slurmId} for ${user} on ${targetPath} (${mode})`)
         await updateJobStatus(jobId, 'submitted', slurmId)
         return { success: true, message: `Job submitted (ID: ${slurmId})` }
     } catch (e: any) {
