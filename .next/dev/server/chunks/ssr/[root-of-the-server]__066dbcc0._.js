@@ -1077,6 +1077,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$ap
 ;
 ;
 ;
+;
 }),
 "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -1088,6 +1089,8 @@ __turbopack_context__.s([
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getRecentFiles"],
     "007b570a57785f01535b5d375be38cb258aa44d016",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getFavorites"],
+    "008766824ac9554216a7053c513972411cc6ef5db2",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getCurrentUser"],
     "00c89052df53b78dcb1d808ba92feca4271fe45d8e",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getDataPath"],
     "00f724b4ca412bcb595c35212354467d12f2529459",

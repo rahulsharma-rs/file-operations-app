@@ -30,7 +30,19 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     onNewItem: (type: 'folder' | 'file' | 'script' | 'upload') => void
 }
 
+import { useEffect, useState } from "react"
+import { getCurrentUser } from "@/app/actions"
+
+// ... existing imports ...
+
 export function Sidebar({ className, activeView = "home", onNavigate, onNewItem }: SidebarProps) {
+    const [currentUser, setCurrentUser] = useState<string>("")
+
+    useEffect(() => {
+        getCurrentUser().then(setCurrentUser)
+    }, [])
+
+    // ... navItems definition ...
     const navItems = [
         { name: "Home", icon: Home, id: "home" },
         { name: "Data", icon: FolderPlus, id: "data" },
@@ -43,6 +55,7 @@ export function Sidebar({ className, activeView = "home", onNavigate, onNewItem 
     return (
         <div className={cn("pb-12 w-64 border-r min-h-screen glass flex flex-col transition-all duration-300", className)}>
             <div className="space-y-4 py-4 flex-1">
+                {/* ... header and nav ... */}
                 <div className="px-3 py-2">
                     <div className="mb-8 px-4 flex items-center gap-2">
                         <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
@@ -110,21 +123,18 @@ export function Sidebar({ className, activeView = "home", onNavigate, onNewItem 
                 </div>
             </div>
 
-            {/* <div className="p-4 border-t border-border/40">
-                 <div className="bg-secondary/20 rounded-lg p-3">
-                     <div className="flex items-center justify-between mb-2">
-                         <span className="text-xs font-medium text-muted-foreground">Storage</span>
-                         <span className="text-xs font-medium text-muted-foreground">45%</span>
-                     </div>
-                     <Progress value={45} className="h-1.5" />
-                     <div className="flex justify-between mt-1">
-                         <span className="text-[10px] text-muted-foreground">45 GB</span>
-                         <span className="text-[10px] text-muted-foreground">100 GB</span>
-                     </div>
-                 </div>
-             </div> */}
-
-            <div className="p-4 border-t border-border/40">
+            <div className="p-4 border-t border-border/40 space-y-2">
+                <div className="px-2 py-1.5 rounded-md bg-secondary/10 flex items-center gap-2 overflow-hidden">
+                    <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Users className="h-3 w-3 text-primary" />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                        <span className="text-[10px] text-muted-foreground uppercase font-semibold">Logged in as</span>
+                        <span className="text-xs font-medium truncate" title={currentUser || 'Loading...'}>
+                            {currentUser || 'Loading...'}
+                        </span>
+                    </div>
+                </div>
                 <UserSearchDialog />
             </div>
         </div>

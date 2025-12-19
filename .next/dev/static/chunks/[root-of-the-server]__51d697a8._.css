@@ -1230,6 +1230,10 @@
     width: calc(var(--spacing) * 5);
   }
 
+  .w-6 {
+    width: calc(var(--spacing) * 6);
+  }
+
   .w-7 {
     width: calc(var(--spacing) * 7);
   }
@@ -2053,6 +2057,16 @@
 
   .bg-secondary {
     background-color: hsl(var(--secondary));
+  }
+
+  .bg-secondary\/10 {
+    background-color: hsl(var(--secondary));
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-secondary\/10 {
+      background-color: color-mix(in oklab, hsl(var(--secondary)) 10%, transparent);
+    }
   }
 
   .bg-secondary\/20 {
