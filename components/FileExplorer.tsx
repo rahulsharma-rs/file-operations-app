@@ -458,31 +458,55 @@ export function FileExplorer() {
                                     <BreadcrumbItem>
                                         <BreadcrumbLink
                                             className="cursor-pointer hover:text-primary transition-colors font-medium flex items-center gap-2"
-                                            onClick={() => setCurrentPath([])}
+                                            onClick={() => {
+                                                if (currentPath.length > 0 && currentPath[0] === '/') {
+                                                    // Reset to filesytem root if we are in absolute mode
+                                                    setCurrentPath(['/'])
+                                                } else {
+                                                    // Reset to Home
+                                                    setCurrentPath([])
+                                                }
+                                            }}
                                         >
-                                            <div className="p-1 rounded-md bg-muted/50">
-                                                <LayoutGrid className="h-3 w-3" />
-                                            </div>
-                                            Home
+                                            {currentPath.length > 0 && currentPath[0] === '/' ? (
+                                                <>
+                                                    <div className="p-1 rounded-md bg-muted/50">
+                                                        <LayoutGrid className="h-3 w-3" />
+                                                    </div>
+                                                    Filesystem
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="p-1 rounded-md bg-muted/50">
+                                                        <LayoutGrid className="h-3 w-3" />
+                                                    </div>
+                                                    Home
+                                                </>
+                                            )}
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
-                                    {currentPath.map((folder, index) => (
-                                        <div key={index} className="flex items-center">
-                                            <BreadcrumbSeparator />
-                                            <BreadcrumbItem>
-                                                {index === currentPath.length - 1 ? (
-                                                    <BreadcrumbPage className="font-semibold text-foreground bg-primary/5 px-2 py-0.5 rounded-md">{folder}</BreadcrumbPage>
-                                                ) : (
-                                                    <BreadcrumbLink
-                                                        className="cursor-pointer hover:text-primary transition-colors"
-                                                        onClick={() => setCurrentPath(currentPath.slice(0, index + 1))}
-                                                    >
-                                                        {folder}
-                                                    </BreadcrumbLink>
-                                                )}
-                                            </BreadcrumbItem>
-                                        </div>
-                                    ))}
+                                    {currentPath.map((folder, index) => {
+                                        // Specific handling for the root '/' segment if it exists at start
+                                        if (folder === '/' && index === 0) return null
+
+                                        return (
+                                            <div key={index} className="flex items-center">
+                                                <BreadcrumbSeparator />
+                                                <BreadcrumbItem>
+                                                    {index === currentPath.length - 1 ? (
+                                                        <BreadcrumbPage className="font-semibold text-foreground bg-primary/5 px-2 py-0.5 rounded-md">{folder}</BreadcrumbPage>
+                                                    ) : (
+                                                        <BreadcrumbLink
+                                                            className="cursor-pointer hover:text-primary transition-colors"
+                                                            onClick={() => setCurrentPath(currentPath.slice(0, index + 1))}
+                                                        >
+                                                            {folder}
+                                                        </BreadcrumbLink>
+                                                    )}
+                                                </BreadcrumbItem>
+                                            </div>
+                                        )
+                                    })}
                                 </BreadcrumbList>
                             </Breadcrumb>
 

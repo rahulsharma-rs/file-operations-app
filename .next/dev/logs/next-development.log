@@ -572,3 +572,19 @@ Import trace:
 [01:30:50.103] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
 [01:30:50.103] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766161982837}
 [01:31:19.275] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/project/Data2Discovery'
+[01:39:58.480] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/user/rahulsharma'
+[01:40:02.162] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/project/Data2Discovery'
+[01:40:11.446] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/user/rahulsharma'
+[01:43:15.512] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/project/Data2Discovery'
+[01:43:15.883] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/project/Data2Discovery'
+[01:47:29.784] Server  LOG      ✓ Compiled in 82ms
+[01:47:30.106] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/project/Data2Discovery'
+[01:47:34.830] Server  LOG      ✓ Compiled in 22ms
+[01:47:35.031] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/project/Data2Discovery'
+[01:49:10.285] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:49:10.627] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:49:10.627] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/","route":"/"}
+[01:49:10.627] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1766163083336}
+[01:49:12.499] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/user/rahulsharma'
+[01:49:14.568] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/project/Data2Discovery'
+[01:49:16.559] Server  ERROR   Error reading directory: Error: ENOENT: no such file or directory, scandir '/data/user/rahulsharma'
