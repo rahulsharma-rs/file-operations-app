@@ -4,6 +4,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
 import { FileItem, SharedFileItem } from '@/app/types'
+import { checkOwnership, applyAcl, getExecutionUser } from '@/app/lib/hpc'
 
 const BASE_PATH = os.homedir()
 const ALLOWED_ROOTS = [os.homedir(), '/data', '/scratch', '/gpfs', '/fs1', '/project', '/work', '/lstr']
@@ -142,140 +143,50 @@ export async function shareFile(sourcePath: string, targetUsername: string, perm
     }
 
     try {
-        // --- ACL IMPLEMENTATION ---
-        // Grant Read/Execute permissions to the target user on the source file/folder
-        // using 'setfacl'. This allows the target user to access the file directly via its full path.
-        // We do NOT create symlinks or 'hpc_shared' directories as per user request.
+        // Check ownership
+        const isOwner = await checkOwnership(sourcePath)
+        if (!isOwner) {
+            console.warn(`[Share] Current user is not owner of ${sourcePath}`)
+        }
 
-        // Determine permissions string
-        // read: rx (needs x for directories to list contents)
-        // write: rwx (needs w to create/delete)
-        const aclPerms = permission === 'write' ? 'rwX' : 'rX'
-
-        // Determine if directory for recursive flag
+        // Determine recursion
         const stats = await fs.stat(sourcePath)
-        const recursiveFlag = stats.isDirectory() ? '-R' : ''
+        const isDirectory = stats.isDirectory()
 
-        // ... existing setup ...
+        // Apply ACL to the target
+        // Uses probeAclSupport internally to choose between POSIX and NFSv4
+        const success = await applyAcl(sourcePath, targetUsername, permission, isDirectory)
 
-        // Helper to log to file for OOD debugging
-        const logToFile = async (msg: string) => {
-            const tempLogPath = path.join(os.homedir(), '.hpc_debug.log')
-            const timestamp = new Date().toISOString()
-            const line = `[${timestamp}] ${msg}\n`
-            try {
-                // Determine home dir again to be safe if os.homedir() var changes (unlikely)
-                await fs.appendFile(tempLogPath, line)
-            } catch (e) {
-                // Silent fail
+        if (!success) {
+            if (process.env.NODE_ENV === 'development' && os.platform() === 'darwin') {
+                return { success: true, message: `[DEV] Simulating access grant to ${targetUsername}` }
             }
+            throw new Error("Failed to apply permissions. Filesystem might not support ACLs or access denied.")
         }
 
-        // Helper to run ACL command
-        const tryAclCommand = async (cmd: string) => {
-            const { stdout: currentUser } = await execAsync('whoami')
-            const userMsg = `[ACL] Executing as user: ${currentUser.trim()}`
-            console.log(userMsg)
-            await logToFile(userMsg)
+        // Traversal Logic (Ensure +x on parents)
+        // We need to ensure the target user can traverse up to the file
+        const currentUser = await getExecutionUser()
+        const userRoots = [
+            os.homedir(),
+            path.join('/data/user', currentUser),
+            path.join('/scratch', currentUser)
+        ]
 
-            const cmdMsg = `[ACL] Executing: ${cmd}`
-            console.log(cmdMsg)
-            await logToFile(cmdMsg)
+        let currentDir = path.dirname(sourcePath)
+        while (currentDir !== '/' && currentDir !== '.') {
+            const isInsideUserRoot = userRoots.some(root => currentDir.startsWith(root))
+            if (!isInsideUserRoot) break;
 
-            try {
-                const { stdout, stderr } = await execAsync(cmd)
-                if (stderr) {
-                    // Log warning but don't fail immediately if exit code was 0 (which it is if we are here)
-                    const warnMsg = `[ACL] Warning for ${cmd}: ${stderr}`
-                    console.warn(warnMsg)
-                    await logToFile(warnMsg)
-                }
-                const successMsg = `[ACL] Success: ${stdout}`
-                console.log(successMsg)
-                await logToFile(successMsg)
-                return true
-            } catch (e: any) {
-                const errorMsg = `[ACL] Failed: ${cmd} - ${e.message}`
-                console.error(errorMsg)
-                await logToFile(errorMsg)
-                // e.code is the exit code. 
-                return false
-            }
+            // Grant traversal (+x) using the same ACL mechanism
+            // We don't check success here strictly as we might not own parent folders or they might already have permissions
+            await applyAcl(currentDir, targetUsername, 'traverse')
+
+            currentDir = path.dirname(currentDir)
         }
 
-        try {
-            let success = false
-            let method = ''
+        return { success: true, message: `Access granted to ${targetUsername} (${permission})` }
 
-            // Strategy 1: Standard POSIX ACL (Non-Recursive)
-            // User requested no -R option
-            const cmdPosix = `setfacl -m "u:${targetUsername}:${aclPerms}" ${sourcePath}`
-            if (await tryAclCommand(cmdPosix)) {
-                success = true
-                method = 'POSIX'
-            }
-
-            // Strategy 3: NFSv4 ACL (nfs4_setfacl)
-            // Implementation for systems using NFSv4 ACLs (common in HPC /project or /data)
-            if (!success) {
-                const nfs4Perms = permission === 'write' ? 'RWX' : 'RX'
-                // -a: add, A: allow, ::user:perms
-                const cmdNfs4 = `nfs4_setfacl -a A::${targetUsername}:${nfs4Perms} ${sourcePath}`
-                if (await tryAclCommand(cmdNfs4)) {
-                    success = true
-                    method = 'NFSv4'
-                }
-            }
-
-            if (!success) {
-                // Throw the original error or a generic one with more details
-                throw new Error(`Could not apply permissions. functional setfacl or nfs4_setfacl failed. Please check if ACLs are enabled on this filesystem.`)
-            }
-
-            // 2. Ensure Traversal Access (+x) on parent directories
-            // If the shared file is deep inside /data/user/alice/foo/bar,
-            // bob needs +x on /data/user/alice, /data/user/alice/foo to reach it.
-            // We ONLY do this for directories OWNED by the current user (e.g. inside Home or /data/user/$USER).
-
-            const currentUser = os.userInfo().username
-            const userRoots = [
-                os.homedir(),
-                path.join('/data/user', currentUser),
-                path.join('/scratch', currentUser)
-            ]
-
-            let currentDir = path.dirname(sourcePath)
-
-            // Walk up until we hit a system root or run out of path
-            while (currentDir !== '/' && currentDir !== '.') {
-                // Check if we are inside a user root
-                const isInsideUserRoot = userRoots.some(root => currentDir.startsWith(root))
-                if (!isInsideUserRoot) break; // Stop if we go above user's space (e.g. /data/user)
-
-                try {
-                    // Grant execute (x) ONLY. This allows traversal but not listing (r) or writing (w).
-                    // This is minimal privilege to reach the shared content.
-                    await execAsync(`setfacl -m "u:${targetUsername}:X" ${currentDir}`)
-                } catch (e) {
-                    console.warn(`Failed to set traversal ACL on ${currentDir}:`, e)
-                    // Continue anyway, maybe it already works or we aren't owner (though we checked root)
-                }
-
-                currentDir = path.dirname(currentDir)
-            }
-
-            return { success: true, message: `Access granted to ${targetUsername} (${permission}). Traversal permissions updated.` }
-        } catch (aclError: any) {
-            console.error("ACL Error:", aclError)
-            console.log("Environment check:", { env: process.env.NODE_ENV, platform: os.platform() })
-
-            // If setfacl fails (e.g. local mac), we return error since this is the ONLY mechanism now.
-            // On Mac (darwin), simply return success to allow UI testing.
-            if (os.platform() === 'darwin') {
-                return { success: true, message: `[DEV] Simulating ACL grant (${aclPerms}) to ${targetUsername} for ${sourcePath}` }
-            }
-            return { success: false, message: `Failed to set permissions: ${aclError.message}` }
-        }
     } catch (error: any) {
         console.error("Error sharing file:", error)
         return { success: false, message: error.message || "Failed to share file" }
