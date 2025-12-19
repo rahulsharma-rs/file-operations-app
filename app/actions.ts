@@ -148,19 +148,46 @@ export async function shareFile(sourcePath: string, targetUsername: string, perm
 
         // ... existing setup ...
 
+        // Helper to log to file for OOD debugging
+        const logToFile = async (msg: string) => {
+            const tempLogPath = path.join(os.homedir(), '.hpc_debug.log')
+            const timestamp = new Date().toISOString()
+            const line = `[${timestamp}] ${msg}\n`
+            try {
+                // Determine home dir again to be safe if os.homedir() var changes (unlikely)
+                await fs.appendFile(tempLogPath, line)
+            } catch (e) {
+                // Silent fail
+            }
+        }
+
         // Helper to run ACL command
         const tryAclCommand = async (cmd: string) => {
-            console.log(`[ACL] Executing: ${cmd}`)
+            const { stdout: currentUser } = await execAsync('whoami')
+            const userMsg = `[ACL] Executing as user: ${currentUser.trim()}`
+            console.log(userMsg)
+            await logToFile(userMsg)
+
+            const cmdMsg = `[ACL] Executing: ${cmd}`
+            console.log(cmdMsg)
+            await logToFile(cmdMsg)
+
             try {
                 const { stdout, stderr } = await execAsync(cmd)
                 if (stderr) {
                     // Log warning but don't fail immediately if exit code was 0 (which it is if we are here)
-                    console.warn(`[ACL] Warning for ${cmd}:`, stderr)
+                    const warnMsg = `[ACL] Warning for ${cmd}: ${stderr}`
+                    console.warn(warnMsg)
+                    await logToFile(warnMsg)
                 }
-                console.log(`[ACL] Success: ${stdout}`)
+                const successMsg = `[ACL] Success: ${stdout}`
+                console.log(successMsg)
+                await logToFile(successMsg)
                 return true
             } catch (e: any) {
-                console.error(`[ACL] Failed: ${cmd}`, e)
+                const errorMsg = `[ACL] Failed: ${cmd} - ${e.message}`
+                console.error(errorMsg)
+                await logToFile(errorMsg)
                 // e.code is the exit code. 
                 return false
             }

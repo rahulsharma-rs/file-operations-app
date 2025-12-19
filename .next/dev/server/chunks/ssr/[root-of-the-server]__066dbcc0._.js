@@ -219,19 +219,43 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
         const stats = await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].stat(sourcePath);
         const recursiveFlag = stats.isDirectory() ? '-R' : '';
         // ... existing setup ...
+        // Helper to log to file for OOD debugging
+        const logToFile = async (msg)=>{
+            const tempLogPath = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(__TURBOPACK__imported__module__$5b$externals$5d2f$os__$5b$external$5d$__$28$os$2c$__cjs$29$__["default"].homedir(), '.hpc_debug.log');
+            const timestamp = new Date().toISOString();
+            const line = `[${timestamp}] ${msg}\n`;
+            try {
+                // Determine home dir again to be safe if os.homedir() var changes (unlikely)
+                await __TURBOPACK__imported__module__$5b$externals$5d2f$fs$2f$promises__$5b$external$5d$__$28$fs$2f$promises$2c$__cjs$29$__["default"].appendFile(tempLogPath, line);
+            } catch (e) {
+            // Silent fail
+            }
+        };
         // Helper to run ACL command
         const tryAclCommand = async (cmd)=>{
-            console.log(`[ACL] Executing: ${cmd}`);
+            const { stdout: currentUser } = await execAsync('whoami');
+            const userMsg = `[ACL] Executing as user: ${currentUser.trim()}`;
+            console.log(userMsg);
+            await logToFile(userMsg);
+            const cmdMsg = `[ACL] Executing: ${cmd}`;
+            console.log(cmdMsg);
+            await logToFile(cmdMsg);
             try {
                 const { stdout, stderr } = await execAsync(cmd);
                 if (stderr) {
                     // Log warning but don't fail immediately if exit code was 0 (which it is if we are here)
-                    console.warn(`[ACL] Warning for ${cmd}:`, stderr);
+                    const warnMsg = `[ACL] Warning for ${cmd}: ${stderr}`;
+                    console.warn(warnMsg);
+                    await logToFile(warnMsg);
                 }
-                console.log(`[ACL] Success: ${stdout}`);
+                const successMsg = `[ACL] Success: ${stdout}`;
+                console.log(successMsg);
+                await logToFile(successMsg);
                 return true;
             } catch (e) {
-                console.error(`[ACL] Failed: ${cmd}`, e);
+                const errorMsg = `[ACL] Failed: ${cmd} - ${e.message}`;
+                console.error(errorMsg);
+                await logToFile(errorMsg);
                 // e.code is the exit code. 
                 return false;
             }
