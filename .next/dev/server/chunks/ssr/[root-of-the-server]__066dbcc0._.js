@@ -239,20 +239,12 @@ async function shareFile(sourcePath, targetUsername, permission = 'read') {
         try {
             let success = false;
             let method = '';
-            // Strategy 1: Standard POSIX ACL (Recursive if dir)
-            const cmdPosixRecursive = `setfacl ${recursiveFlag} -m "u:${targetUsername}:${aclPerms}" ${sourcePath}`;
-            if (await tryAclCommand(cmdPosixRecursive)) {
+            // Strategy 1: Standard POSIX ACL (Non-Recursive)
+            // User requested no -R option
+            const cmdPosix = `setfacl -m "u:${targetUsername}:${aclPerms}" ${sourcePath}`;
+            if (await tryAclCommand(cmdPosix)) {
                 success = true;
-                method = 'POSIX (Recursive)';
-            }
-            // Strategy 2: Standard POSIX ACL (Non-Recursive) 
-            // Fallback if recursive failed (e.g. issues with specific files inside)
-            if (!success && recursiveFlag) {
-                const cmdPosix = `setfacl -m "u:${targetUsername}:${aclPerms}" ${sourcePath}`;
-                if (await tryAclCommand(cmdPosix)) {
-                    success = true;
-                    method = 'POSIX (Non-Recursive)';
-                }
+                method = 'POSIX';
             }
             // Strategy 3: NFSv4 ACL (nfs4_setfacl)
             // Implementation for systems using NFSv4 ACLs (common in HPC /project or /data)
