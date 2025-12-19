@@ -20,6 +20,7 @@ import {
     FilePlus,
     Upload,
     Database,
+    Activity,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ShareDialog } from "./ShareDialog"
@@ -51,6 +52,7 @@ export function Sidebar({ className, activeView = "home", onNavigate, onNewItem 
         { name: "Shared Projects", icon: Users, id: "shared" },
         { name: "Recent Files", icon: Clock, id: "recent" },
         { name: "Favorites", icon: Star, id: "favorites" },
+        { name: "Activity", icon: Activity, id: "activity" },
         { name: "Trash", icon: Trash2, id: "trash" },
     ]
 

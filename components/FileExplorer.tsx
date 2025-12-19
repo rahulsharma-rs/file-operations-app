@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Sidebar } from "./Sidebar"
 import { FileList } from "./FileList"
+import { ActivityView } from "./ActivityView"
 import { DetailsDrawer } from "./DetailsDrawer"
 import { ShareDialog } from "./ShareDialog"
 import {
@@ -374,10 +375,10 @@ export function FileExplorer() {
         })
     }
 
-    const handleUnshare = async (username: string, fileName: string) => {
-        if (!window.confirm(`Stop sharing ${fileName} with ${username}?`)) return
+    const handleUnshare = async (username: string, filePath: string) => {
+        if (!window.confirm(`Stop sharing ${filePath} with ${username}?`)) return
 
-        const result = await unshareFile(username, fileName)
+        const result = await unshareFile(username, filePath)
         if (result.success) {
             toast.success(result.message)
             const outgoing = await getOutgoingShares()
@@ -638,7 +639,7 @@ export function FileExplorer() {
                                                                 <Badge key={idx} variant="secondary" className="gap-1 pr-1">
                                                                     {share.username}
                                                                     <button
-                                                                        onClick={() => handleUnshare(share.username, file.name)}
+                                                                        onClick={() => handleUnshare(share.username, file.path)}
                                                                         className="ml-1 rounded-full p-0.5 hover:bg-destructive hover:text-destructive-foreground"
                                                                     >
                                                                         <X className="h-3 w-3" />
@@ -721,6 +722,8 @@ export function FileExplorer() {
                                 </tbody>
                             </table>
                         </div>
+                    ) : currentView === 'activity' ? (
+                        <ActivityView />
                     ) : (
                         <FileList
                             files={filteredFiles}

@@ -300,6 +300,36 @@
       "filename": "app/actions.ts",
       "exportedName": "getCurrentUser"
     },
+    "00a93633dcd7d5802a7b7c5e1a6f08cf968dda226c": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getJobHistory",
+          "filename": "app/actions.ts"
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      },
+      "filename": "app/actions.ts",
+      "exportedName": "getJobHistory"
+    },
+    "78d022436640f2104fe3a55de5294fa9ecc0f5b9df": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "revokeJob",
+          "filename": "app/actions.ts"
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      },
+      "filename": "app/actions.ts",
+      "exportedName": "revokeJob"
+    },
     "40d16576a1197cb79f87d426537e25047357caad19": {
       "workers": {
         "app/page": {

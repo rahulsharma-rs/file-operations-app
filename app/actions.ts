@@ -4,7 +4,8 @@ import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
 import { FileItem, SharedFileItem } from '@/app/types'
-import { checkOwnership, applyAcl, getExecutionUser } from '@/app/lib/hpc'
+import { submitAclJob, getExecutionUser, checkOwnership, getPermString } from '@/app/lib/hpc'
+import { getJobs, JobRecord } from '@/app/lib/db'
 
 const BASE_PATH = os.homedir()
 const ALLOWED_ROOTS = [os.homedir(), '/data', '/scratch', '/gpfs', '/fs1', '/project', '/work', '/lstr']
@@ -152,70 +153,46 @@ async function getUsername(uid: number): Promise<string> {
     return promise
 }
 
-async function userExists(username: string): Promise<boolean> {
-    try {
-        await execWithLog(`id -u ${username}`)
-        return true
-    } catch (error) {
-        return false
+// Duplicates removed
+
+export async function shareFile(pathSegmentsOrPath: string[] | string, username: string, permission: 'read' | 'write' | 'traverse' | 'none') {
+    let targetPath: string
+    if (Array.isArray(pathSegmentsOrPath)) {
+        targetPath = path.join(BASE_PATH, path.join(...pathSegmentsOrPath))
+    } else {
+        targetPath = pathSegmentsOrPath
     }
+
+    // Check ownership first
+    // Check ownership first
+    const isOwner = await checkOwnership(targetPath)
+    if (!isOwner) {
+        return { success: false, message: "Only the owner can share this file" }
+    }
+
+    const result = await submitAclJob(targetPath, username, permission)
+    return result
 }
 
-export async function shareFile(sourcePath: string, targetUsername: string, permission: 'read' | 'write' = 'read'): Promise<{ success: boolean, message: string }> {
-    // Validate target user exists
-    if (!await userExists(targetUsername)) {
-        return { success: false, message: `User '${targetUsername}' does not exist on this system.` }
+export async function unshareFile(username: string, fileName: string) {
+    let targetPath = fileName
+    if (!path.isAbsolute(targetPath)) {
+        targetPath = path.join(BASE_PATH, targetPath)
     }
 
-    try {
-        // Check ownership
-        const isOwner = await checkOwnership(sourcePath)
-        if (!isOwner) {
-            console.warn(`[Share] Current user is not owner of ${sourcePath}`)
-        }
+    const result = await submitAclJob(targetPath, username, 'none')
+    return result
+}
 
-        // Determine recursion
-        const stats = await fs.stat(sourcePath)
-        const isDirectory = stats.isDirectory()
+export async function getJobHistory(): Promise<JobRecord[]> {
+    return getJobs()
+}
 
-        // Apply ACL to the target
-        // Uses probeAclSupport internally to choose between POSIX and NFSv4
-        const success = await applyAcl(sourcePath, targetUsername, permission, isDirectory)
-
-        if (!success) {
-            if (process.env.NODE_ENV === 'development' && os.platform() === 'darwin') {
-                return { success: true, message: `[DEV] Simulating access grant to ${targetUsername}` }
-            }
-            throw new Error("Failed to apply permissions. Filesystem might not support ACLs or access denied.")
-        }
-
-        // Traversal Logic (Ensure +x on parents)
-        // We need to ensure the target user can traverse up to the file
-        const currentUser = await getExecutionUser()
-        const userRoots = [
-            os.homedir(),
-            path.join('/data/user', currentUser),
-            path.join('/scratch', currentUser)
-        ]
-
-        let currentDir = path.dirname(sourcePath)
-        while (currentDir !== '/' && currentDir !== '.') {
-            const isInsideUserRoot = userRoots.some(root => currentDir.startsWith(root))
-            if (!isInsideUserRoot) break;
-
-            // Grant traversal (+x) using the same ACL mechanism
-            // We don't check success here strictly as we might not own parent folders or they might already have permissions
-            await applyAcl(currentDir, targetUsername, 'traverse')
-
-            currentDir = path.dirname(currentDir)
-        }
-
-        return { success: true, message: `Access granted to ${targetUsername} (${permission})` }
-
-    } catch (error: any) {
-        console.error("Error sharing file:", error)
-        return { success: false, message: error.message || "Failed to share file" }
+export async function revokeJob(jobId: number, type: string, targetPath: string, targetUser: string): Promise<{ success: boolean, message: string }> {
+    if (type === 'acl_add') {
+        return submitAclJob(targetPath, targetUser, 'none')
     }
+    return { success: false, message: "Undo not supported for this job type" }
 }
 
 export async function getFileAcls(filePath: string): Promise<{ username: string, permissions: 'read' | 'write' }[]> {
@@ -454,15 +431,7 @@ export async function getOutgoingShares(): Promise<SharedFileItem[]> {
     }
 }
 
-export async function unshareFile(targetUsername: string, fileName: string): Promise<{ success: boolean, message: string }> {
-    try {
-        const sharedLinkPath = path.join(os.homedir(), 'hpc_shared', targetUsername, fileName)
-        await fs.unlink(sharedLinkPath)
-        return { success: true, message: `Unshared ${fileName} with ${targetUsername}` }
-    } catch (error: any) {
-        return { success: false, message: error.message || "Failed to unshare" }
-    }
-}
+// Duplicates removed
 
 export async function changePermissions(filePath: string, mode: string): Promise<{ success: boolean, message: string }> {
     try {

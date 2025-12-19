@@ -150,50 +150,65 @@ export async function probeAclSupport(targetPath: string): Promise<AclCapability
 }
 
 // Helper to get raw permission string
-function getPermString(perm: 'read' | 'write' | 'traverse' | 'none'): string {
+export function getPermString(perm: 'read' | 'write' | 'traverse' | 'none'): string {
     if (perm === 'write') return 'rwX'
     if (perm === 'read') return 'rX'
     if (perm === 'traverse') return 'X'
     return ''
 }
 
-export async function applyAcl(targetPath: string, user: string, permission: 'read' | 'write' | 'traverse' | 'none', recursive: boolean = false): Promise<boolean> {
+import { insertJob, updateJobStatus } from './db'
+
+export async function submitAclJob(targetPath: string, user: string, permission: 'read' | 'write' | 'traverse' | 'none', recursive: boolean = false): Promise<{ success: boolean, message: string }> {
     const aclType = await probeAclSupport(targetPath)
 
     if (aclType === 'none') {
-        console.warn(`ACLs not supported on ${targetPath}`)
-        return false
+        return { success: false, message: `ACLs not supported on ${targetPath}` }
     }
-
-    // recursive flag is unused for POSIX setfacl here as we removed -R
-    // but keeping signature same for compatibility
 
     const permString = getPermString(permission)
+    const mode = permission === 'none' ? 'remove' : 'set'
+    const scriptPath = path.join(process.cwd(), 'scripts', 'apply_acl.sh')
 
-    // Enhanced Debugging: Capture system info before applying ACLs
-    // This helps diagnose HPC node specific issues (filesystem support, command availability)
+    // 1. Create Job Record
+    let jobId: number
     try {
-        await execWithLog('hostname')
-        await execWithLog(`df -T "${targetPath}"`)
-        await execWithLog('which setfacl')
-        await execWithLog('setfacl --version')
-    } catch (debugError) {
-        // Ignore debug command failures so we don't block the actual operation
-        console.warn('Failed to capture debug info:', debugError)
+        jobId = await insertJob({
+            type: mode === 'remove' ? 'acl_remove' : 'acl_add',
+            target_path: targetPath,
+            target_user: user,
+            permissions: permString,
+            slurm_job_id: null,
+            status: 'pending'
+        })
+    } catch (e) {
+        console.error("Failed to insert job record:", e)
+        return { success: false, message: "Failed to record job" }
     }
 
+    // 2. Submit to Slurm
     try {
-        if (permission === 'none') {
-            // Remove
-            await execFileWithLog('setfacl', ['-x', `u:${user}`, targetPath])
-            return true
+        // Args: User, Path, Perms, Mode
+        const args = [scriptPath, user, targetPath, permString, mode]
+        const { stdout } = await execFileWithLog('sbatch', args)
+
+        // Parse Job ID from stdout "Submitted batch job 12345"
+        const match = stdout.match(/Submitted batch job (\d+)/)
+        const slurmId = match ? match[1] : 'unknown'
+
+        await updateJobStatus(jobId, 'submitted', slurmId)
+        return { success: true, message: `Job submitted (ID: ${slurmId})` }
+    } catch (e: any) {
+        console.error("Slurm submission failed:", e)
+
+        // Handle local dev fallback (sbatch not found)
+        if (e.message && e.message.includes('ENOENT')) {
+            console.warn("sbatch not found, assuming local dev. Marking as fake-success for testing.")
+            await updateJobStatus(jobId, 'completed (local-mock)', 'local-dev')
+            return { success: true, message: "Locally mocked success (sbatch not found)" }
         }
 
-        // Set
-        await execFileWithLog('setfacl', ['-m', `u:${user}:${permString}`, targetPath])
-        return true
-    } catch (e) {
-        console.error(`Failed to apply POSIX ACL on ${targetPath}:`, e)
-        return false
+        await updateJobStatus(jobId, 'failed')
+        return { success: false, message: "Failed to submit Slurm job" }
     }
 }
