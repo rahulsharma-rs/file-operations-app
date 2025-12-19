@@ -18,8 +18,21 @@ const port = parseInt(process.env.PORT, 10) || 3000
 async function startServer() {
     console.log('Starting Next.js under Open OnDemand')
     console.log('Base path: /pun/dev/file-manager')
-    console.log(`Current User: ${require('os').userInfo().username}`)
+    const username = require('os').userInfo().username
+    console.log(`Current User: ${username}`)
     console.log(`NODE_ENV=${process.env.NODE_ENV}, dev=${dev}`)
+
+    // Log startup to persistent debug file
+    try {
+        const fs = require('fs')
+        const path = require('path')
+        const os = require('os')
+        const logPath = path.join(os.homedir(), '.hpc_debug.log')
+        const msg = `[${new Date().toISOString()}] [STARTUP] App started. Process User: ${username} (expecting ${process.env.USER})\n`
+        fs.appendFileSync(logPath, msg)
+    } catch (e) {
+        console.error("Failed to write to debug log", e)
+    }
 
     const app = next({ dev, hostname, port })
     const handle = app.getRequestHandler()
