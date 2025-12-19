@@ -102,6 +102,16 @@ import util from 'util'
 
 const execAsync = util.promisify(exec)
 
+// Helper to get current execution user
+export async function getCurrentUser(): Promise<string> {
+    try {
+        const { username } = os.userInfo()
+        return username
+    } catch {
+        return 'unknown'
+    }
+}
+
 const usernameCache = new Map<number, string>()
 
 async function getUsername(uid: number): Promise<string> {
