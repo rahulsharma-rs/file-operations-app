@@ -111,17 +111,32 @@ export async function getCurrentUser(): Promise<string> {
 }
 
 const usernameCache = new Map<number, string>()
+const pendingUsernameRequests = new Map<number, Promise<string>>()
 
 async function getUsername(uid: number): Promise<string> {
     if (usernameCache.has(uid)) return usernameCache.get(uid)!
-    try {
-        const { stdout } = await execWithLog(`id -nu ${uid}`)
-        const name = stdout.trim()
-        usernameCache.set(uid, name)
-        return name
-    } catch (e) {
-        return String(uid)
+
+    // Check if there is already a pending request for this UID
+    if (pendingUsernameRequests.has(uid)) {
+        return pendingUsernameRequests.get(uid)!
     }
+
+    // Create a new request promise
+    const promise = (async () => {
+        try {
+            const { stdout } = await execWithLog(`id -nu ${uid}`)
+            const name = stdout.trim()
+            usernameCache.set(uid, name)
+            return name
+        } catch (e) {
+            return String(uid)
+        } finally {
+            pendingUsernameRequests.delete(uid)
+        }
+    })()
+
+    pendingUsernameRequests.set(uid, promise)
+    return promise
 }
 
 async function userExists(username: string): Promise<boolean> {

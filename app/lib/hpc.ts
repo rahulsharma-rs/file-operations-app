@@ -1,10 +1,11 @@
-import { exec } from 'child_process'
+import { exec, execFile } from 'child_process'
 import util from 'util'
 import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
 
 const execAsync = util.promisify(exec) as (command: string, options?: any) => Promise<{ stdout: string, stderr: string }>
+const execFileAsync = util.promisify(execFile) as (file: string, args: string[] | undefined | null, options?: any) => Promise<{ stdout: string, stderr: string }>
 
 /**
  * Executes a shell command and logs it to a persistent file for debugging.
@@ -43,6 +44,44 @@ export async function execWithLog(command: string, options: any = {}): Promise<{
     }
 }
 
+/**
+ * Executes a file with arguments safely and logs it.
+ */
+export async function execFileWithLog(file: string, args: string[], options: any = {}): Promise<{ stdout: string, stderr: string }> {
+    const logPath = path.join(os.homedir(), 'hpc_app_debug.log')
+    const timestamp = new Date().toISOString()
+
+    // Log Command
+    try {
+        // Log in a way that shows individual args
+        const cmdLog = `[${timestamp}] [CMD] ${file} ${JSON.stringify(args)}\n`
+        await fs.appendFile(logPath, cmdLog)
+    } catch (e) { /* worst case ignore logging error */ }
+
+    try {
+        const { stdout, stderr } = await execFileAsync(file, args, options)
+
+        // Log Output
+        try {
+            const outLog = `[${timestamp}] [OUT] ${stdout.trim().substring(0, 500)}${stdout.length > 500 ? '...' : ''}\n`
+            await fs.appendFile(logPath, outLog)
+            if (stderr) {
+                const errLog = `[${timestamp}] [ERR] ${stderr.trim()}\n`
+                await fs.appendFile(logPath, errLog)
+            }
+        } catch (e) { /* ignore */ }
+
+        return { stdout, stderr }
+    } catch (error: any) {
+        // Log Failure
+        try {
+            const failLog = `[${timestamp}] [FAIL] ${error.message}\n`
+            await fs.appendFile(logPath, failLog)
+        } catch (e) { /* ignore */ }
+        throw error
+    }
+}
+
 interface AclCapability {
     type: 'nfs4' | 'posix' | 'none'
     verifiedAt: number
@@ -51,14 +90,26 @@ interface AclCapability {
 // Cache capabilities by directory path
 const capabilityCache = new Map<string, AclCapability>()
 
+let cachedUser: string | null = null
+let pendingUserRequest: Promise<string> | null = null
+
 export async function getExecutionUser(): Promise<string> {
-    try {
-        const { stdout } = await execWithLog('whoami')
-        return stdout.trim()
-    } catch (e) {
-        // Fallback to os.userInfo if whoami fails
-        return os.userInfo().username
-    }
+    if (cachedUser) return cachedUser
+    if (pendingUserRequest) return pendingUserRequest
+
+    pendingUserRequest = (async () => {
+        try {
+            const { stdout } = await execWithLog('whoami')
+            cachedUser = stdout.trim()
+            return cachedUser
+        } catch (e) {
+            return os.userInfo().username
+        } finally {
+            pendingUserRequest = null
+        }
+    })()
+
+    return pendingUserRequest
 }
 
 export async function checkOwnership(targetPath: string): Promise<boolean> {
@@ -135,7 +186,8 @@ export async function applyAcl(targetPath: string, user: string, permission: 're
         return false
     }
 
-    const recFlag = recursive ? '-R' : ''
+    // User requested removal of -R for setfacl safety
+    const recFlag = (aclType === 'nfs4' && recursive) ? '-R' : ''
     const permString = getPermString(aclType, permission)
 
     try {
@@ -152,12 +204,14 @@ export async function applyAcl(targetPath: string, user: string, permission: 're
         } else if (aclType === 'posix') {
             if (permission === 'none') {
                 // Remove
-                await execWithLog(`setfacl ${recFlag} -x u:${user} "${targetPath}"`)
+                // Use execFileWithLog for safety
+                await execFileWithLog('setfacl', ['-x', `u:${user}`, targetPath])
                 return true
             }
 
-            const cmd = `setfacl ${recFlag} -m u:${user}:${permString} "${targetPath}"`
-            await execWithLog(cmd)
+            // Set
+            // Use execFileWithLog for safety
+            await execFileWithLog('setfacl', ['-m', `u:${user}:${permString}`, targetPath])
             return true
         }
     } catch (e) {
