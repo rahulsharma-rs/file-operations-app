@@ -270,6 +270,21 @@
       "exportedName": "getDataPath",
       "filename": "app/actions.ts"
     },
+    "0085961f4501c1884f9f648dd19a39b0ee3365aca0": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getProjectData2DiscoveryPath",
+          "filename": "app/actions.ts"
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      },
+      "exportedName": "getProjectData2DiscoveryPath",
+      "filename": "app/actions.ts"
+    },
     "008766824ac9554216a7053c513972411cc6ef5db2": {
       "workers": {
         "app/page": {

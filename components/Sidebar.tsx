@@ -19,6 +19,7 @@ import {
     FolderPlus,
     FilePlus,
     Upload,
+    Database,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ShareDialog } from "./ShareDialog"
@@ -46,6 +47,7 @@ export function Sidebar({ className, activeView = "home", onNavigate, onNewItem 
     const navItems = [
         { name: "Home", icon: Home, id: "home" },
         { name: "Data", icon: FolderPlus, id: "data" },
+        { name: "Data2Discovery", icon: Database, id: "project-data2discovery" },
         { name: "Shared Projects", icon: Users, id: "shared" },
         { name: "Recent Files", icon: Clock, id: "recent" },
         { name: "Favorites", icon: Star, id: "favorites" },

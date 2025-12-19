@@ -98,6 +98,19 @@ export async function getDataPath(): Promise<string[]> {
     return rel.split(path.sep)
 }
 
+export async function getProjectData2DiscoveryPath(): Promise<string[]> {
+    // Hardcoded path as requested
+    const targetPath = '/data/project/Data2Discovery'
+
+    // Calculate relative path from Home (BASE_PATH) so getFiles can resolve it
+    const rel = path.relative(BASE_PATH, targetPath)
+
+    // If we are already there (unlikely)
+    if (rel === '') return []
+
+    return rel.split(path.sep)
+}
+
 import { execWithLog } from '@/app/lib/hpc'
 
 // Helper to get current execution user

@@ -24,7 +24,8 @@ import {
     toggleFavorite,
     getFavorites,
     getRelativePath,
-    getDataPath
+    getDataPath,
+    getProjectData2DiscoveryPath
 } from "@/app/actions"
 import { FileItem, SharedFileItem } from "@/app/types"
 import { Button } from "@/components/ui/button"
@@ -163,6 +164,10 @@ export function FileExplorer() {
     const handleNavigate = async (view: string) => {
         if (view === 'data') {
             const segments = await getDataPath()
+            setCurrentPath(segments)
+            setCurrentView('home')
+        } else if (view === 'project-data2discovery') {
+            const segments = await getProjectData2DiscoveryPath()
             setCurrentPath(segments)
             setCurrentView('home')
         } else {
