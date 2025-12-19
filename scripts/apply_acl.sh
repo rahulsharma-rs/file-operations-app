@@ -2,8 +2,8 @@
 #SBATCH --job-name=ood-acl
 #SBATCH --time=00:01:00
 #SBATCH --partition=short
-#SBATCH --output=/data/user/%u/ood-acl-%j.out
-#SBATCH --error=/data/user/%u/ood-acl-%j.err
+#SBATCH --output=ood-acl-%j.out
+#SBATCH --error=ood-acl-%j.err
 
 set -euo pipefail
 

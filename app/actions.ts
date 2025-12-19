@@ -594,17 +594,17 @@ export async function permanentDelete(itemPath: string): Promise<{ success: bool
 export async function getRecentFiles(): Promise<FileItem[]> {
     try {
         // Optimization: Use system `find` command to avoid slow recursive Node.js calls / 502 timeouts
-        // maxdepth 4: Limit traversal depth
+        // maxdepth 3: Limit traversal depth (reduced from 4 for performance)
         // -type f: Only files
         // -mtime -7: Modified in last 7 days
         // -not -path '*/.*': Exclude hidden files
         // Exclude common heavy directories like node_modules, Library
-        const cmd = `find . -maxdepth 4 -not -path '*/.*' -not -path '*/node_modules/*' -not -path '*/Library/*' -mtime -7 -type f | head -n 50`
+        const cmd = `find . -maxdepth 3 -not -path '*/.*' -not -path '*/node_modules/*' -not -path '*/Library/*' -mtime -7 -type f | head -n 50`
 
         try {
             const { stdout } = await execWithLog(cmd, {
                 cwd: BASE_PATH,
-                timeout: 5000 // 5 second timeout protection
+                timeout: 15000 // 15 second timeout protection (increased from 5s)
             })
 
             const relativePaths = stdout.trim().split('\n').filter(p => p.length > 0)
