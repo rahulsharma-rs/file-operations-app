@@ -5,7 +5,7 @@ import path from 'path'
 import os from 'os'
 import { FileItem, SharedFileItem } from '@/app/types'
 import { submitAclJob, getExecutionUser, checkOwnership, getPermString, logSystemEvent } from '@/app/lib/hpc'
-import { getJobs, JobRecord } from '@/app/lib/db'
+import { getJobs, JobRecord, updateJobStatus } from '@/app/lib/db'
 
 const BASE_PATH = os.homedir()
 const ALLOWED_ROOTS = [os.homedir(), '/data', '/scratch', '/gpfs', '/fs1', '/project', '/work', '/lstr']
@@ -191,8 +191,40 @@ export async function unshareFile(username: string, fileName: string) {
     return result
 }
 
+import { getSlurmJobStatus } from '@/app/lib/hpc'
+
 export async function getJobHistory(): Promise<JobRecord[]> {
-    return getJobs()
+    const jobs = await getJobs()
+
+    // Parallel check for active jobs
+    await Promise.all(jobs.map(async (job) => {
+        if (job.status === 'submitted' && job.slurm_job_id) {
+            try {
+                const newState = await getSlurmJobStatus(job.slurm_job_id)
+                // If status changed to a final state, update DB
+                if (newState && newState !== 'UNKNOWN' && newState !== 'RUNNING' && newState !== 'PENDING') {
+                    // Map Slurm state to our simple status
+                    let finalStatus = 'failed'
+                    if (newState.startsWith('COMPLETED')) finalStatus = 'completed'
+                    else if (newState.startsWith('CANCELLED')) finalStatus = 'cancelled'
+                    else if (newState.startsWith('TIMEOUT')) finalStatus = 'timeout'
+                    else if (newState.startsWith('FAILED')) finalStatus = 'failed'
+
+                    if (finalStatus !== job.status) {
+                        // Only update if it's one of our target final states or we want to reflect "RUNNING"?
+                        // User asked 'whether the job actually completed'. 
+                        // Let's just update with the lowercase equivalent content or mapped status.
+                        await updateJobStatus(job.id, finalStatus)
+                        job.status = finalStatus // Update local object for return
+                    }
+                }
+            } catch (e) {
+                // Ignore probe errors, just show stale
+            }
+        }
+    }))
+
+    return jobs
 }
 
 export async function revokeJob(jobId: number, type: string, targetPath: string, targetUser: string): Promise<{ success: boolean, message: string }> {

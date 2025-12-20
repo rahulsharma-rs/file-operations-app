@@ -226,3 +226,24 @@ export async function submitAclJob(targetPath: string, user: string, permission:
         return { success: false, message: "Failed to submit Slurm job" }
     }
 }
+
+export async function getSlurmJobStatus(slurmId: string): Promise<string> {
+    try {
+        // 1. Try sacct (Accounting logs) - Best for completed jobs
+        // -n (no header), -o State (only state), -j (jobid)
+        const { stdout: sacctOut } = await execWithLog(`sacct -j ${slurmId} -o State -n`)
+        let state = sacctOut.trim().split(/\s+/)[0] // Take first word (e.g. COMPLETED from "COMPLETED+")
+
+        if (state) return state
+
+        // 2. Fallback to squeue (Live queue) - For very recent/pending jobs not yet in accounting
+        const { stdout: squeueOut } = await execWithLog(`squeue -j ${slurmId} -o %T -h`)
+        state = squeueOut.trim()
+
+        if (state) return state
+
+        return 'UNKNOWN'
+    } catch (e) {
+        return 'UNKNOWN'
+    }
+}
