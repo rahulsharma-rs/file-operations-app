@@ -12,6 +12,9 @@ if (!fs.existsSync(DB_PATH)) {
 
 const db = new sqlite3.Database(DB_PATH)
 
+// Configure timeout for SQLite to wait for locks (30 seconds)
+db.configure('busyTimeout', 30000)
+
 // Initialize schema
 db.serialize(() => {
     db.run(`
